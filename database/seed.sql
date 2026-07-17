@@ -1,9 +1,9 @@
 -- Seed file for Doctor Serial Cloud
 
--- Hashed password for 'password' is: $2y$10$8.e9X72K0rW73c52/Rz1oO2v6/jA6k.Ure3qB7P5W1hXn9YvT5g7K
+-- Hashed password for 'password' is: $2y$10$upVnHoqNVMXpOjJZSMpFBOtCAPRQuZ69FGdvdeKV/H6IjQyzq4aae
 INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password_hash`, `role`, `avatar`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Dr. Sarah Rahman', 'admin@doctorserial.cloud', '01712345678', '$2y$10$8.e9X72K0rW73c52/Rz1oO2v6/jA6k.Ure3qB7P5W1hXn9YvT5g7K', 'admin', 'sarah-avatar.png', 1, NOW(), NOW()),
-(2, 'Rahim Uddin', 'receptionist@doctorserial.cloud', '01812345678', '$2y$10$8.e9X72K0rW73c52/Rz1oO2v6/jA6k.Ure3qB7P5W1hXn9YvT5g7K', 'receptionist', 'rahim-avatar.png', 1, NOW(), NOW());
+(1, 'Dr. Sarah Rahman', 'admin@doctorserial.cloud', '01712345678', '$2y$10$upVnHoqNVMXpOjJZSMpFBOtCAPRQuZ69FGdvdeKV/H6IjQyzq4aae', 'admin', 'sarah-avatar.png', 1, NOW(), NOW()),
+(2, 'Rahim Uddin', 'receptionist@doctorserial.cloud', '01812345678', '$2y$10$upVnHoqNVMXpOjJZSMpFBOtCAPRQuZ69FGdvdeKV/H6IjQyzq4aae', 'receptionist', 'rahim-avatar.png', 1, NOW(), NOW());
 
 -- Insert Doctor Profile
 INSERT INTO `doctor_profile` (`id`, `user_id`, `name`, `degree`, `specialization`, `bmdc_number`, `hospital`, `bio`, `experience_years`, `consultation_fee`, `languages`, `photo`, `cover_image`, `created_at`, `updated_at`) VALUES

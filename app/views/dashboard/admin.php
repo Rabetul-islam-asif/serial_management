@@ -12,10 +12,6 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
             <span>Refresh</span>
         </button>
-        <button class="btn btn-primary" data-shortcut="call-next" onclick="Toast.success('Calling next patient!')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            <span>Call Next Patient</span>
-        </button>
     </div>
 </div>
 
@@ -61,54 +57,54 @@
 
 <!-- Main Panels -->
 <div class="grid grid-cols-3 mt-4">
-    <!-- Queue List panel -->
-    <div class="card grid-cols-2-span" style="grid-column: span 2;">
-        <div class="flex justify-between align-center mb-4">
-            <h3 style="font-size: 16px; font-weight: 600;">Today's Active Queue</h3>
-            <span class="badge badge-pulse badge-primary">Live Updates</span>
+    <!-- Quick Tasks & Control Panel -->
+    <div class="card" style="grid-column: span 2; display: flex; flex-direction: column; gap: 16px;">
+        <div class="flex justify-between align-center">
+            <h3 style="font-size: 16px; font-weight: 600; color: var(--primary);">Quick Tasks & Control Panel</h3>
+            <span class="badge badge-primary">Admin Access</span>
         </div>
+        <div style="border-bottom: 1px solid var(--bg-border);"></div>
+        
+        <div class="grid grid-cols-2" style="gap: 16px;">
+            <a href="<?= url('doctor/prescription/new') ?>" class="card flex align-center gap-3 hover-lift" style="padding: 16px; border: 1px solid var(--bg-border); background: var(--bg-primary); text-decoration: none;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Write Prescription</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Access medicine RX editor</p>
+                </div>
+            </a>
+            
+            <a href="<?= url('doctor/profile/edit') ?>" class="card flex align-center gap-3 hover-lift" style="padding: 16px; border: 1px solid var(--bg-border); background: var(--bg-primary); text-decoration: none;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Manage Portfolio</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Update bio, degrees, fees</p>
+                </div>
+            </a>
 
-        <div class="table-container">
-            <table class="table-premium">
-                <thead>
-                    <tr>
-                        <th>Serial</th>
-                        <th>Patient</th>
-                        <th>Type</th>
-                        <th>Queue Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="font-mono">#04</td>
-                        <td class="font-semibold">Abdur Rahman (45)</td>
-                        <td><span class="badge badge-accent">Report</span></td>
-                        <td><span class="badge badge-pulse badge-warning">Called</span></td>
-                        <td>
-                            <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px;" onclick="Toast.info('Opening Prescription Editor')">Write Rx</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="font-mono">#05</td>
-                        <td class="font-semibold">Fatema Begum (32)</td>
-                        <td><span class="badge badge-primary">Normal</span></td>
-                        <td><span class="badge badge-primary" style="background: var(--bg-primary); color: var(--text-secondary);">Waiting</span></td>
-                        <td>
-                            <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px;" onclick="Toast.info('Patient will be called next.')">Hold</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="font-mono">#06</td>
-                        <td class="font-semibold">Kamil Ahmed (60)</td>
-                        <td><span class="badge badge-danger">VIP</span></td>
-                        <td><span class="badge badge-primary" style="background: var(--bg-primary); color: var(--text-secondary);">Waiting</span></td>
-                        <td>
-                            <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 12px;">Hold</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <a href="<?= url('doctor/chambers') ?>" class="card flex align-center gap-3 hover-lift" style="padding: 16px; border: 1px solid var(--bg-border); background: var(--bg-primary); text-decoration: none;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--success-light); display: flex; align-items: center; justify-content: center; color: var(--success); flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Chambers Schedule</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Configure visiting slots</p>
+                </div>
+            </a>
+
+            <a href="<?= url('admin/receptionists') ?>" class="card flex align-center gap-3 hover-lift" style="padding: 16px; border: 1px solid var(--bg-border); background: var(--bg-primary); text-decoration: none;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Receptionists</h4>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Manage staff accounts</p>
+                </div>
+            </a>
         </div>
     </div>
 

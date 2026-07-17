@@ -739,9 +739,20 @@
 </div>
 
 <script>
-    // Set share URL display
+    // Set share URL display and handle booking redirect trigger
     document.addEventListener('DOMContentLoaded', () => {
         const urlDisplay = document.getElementById('share-url-display');
         if (urlDisplay) urlDisplay.textContent = window.location.origin;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('redirect') === 'book') {
+            // Open modal and clean URL
+            setTimeout(() => {
+                Modal.open('booking-modal');
+                // Clean the redirect parameter from URL for neatness
+                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+            }, 300);
+        }
     });
 </script>

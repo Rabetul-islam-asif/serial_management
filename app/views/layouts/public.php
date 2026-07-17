@@ -64,14 +64,21 @@
                 <span>Doctor Serial</span>
             </a>
             
+            <?php 
+            $isLanding = in_array(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), ['/', '/profile', '/index.php', '']); 
+            ?>
             <div class="flex align-center gap-3">
                 <?php if (session('role') === 'patient'): ?>
                     <a href="<?= url('patient/dashboard') ?>" class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;">My Prescriptions</a>
                 <?php endif; ?>
                 <?php if (session('role') === 'patient'): ?>
-                    <button class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;" onclick="Modal.open('booking-modal')">Book Appointment</button>
+                    <?php if ($isLanding): ?>
+                        <button class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;" onclick="Modal.open('booking-modal')">Book Appointment</button>
+                    <?php else: ?>
+                        <a href="<?= url('') ?>?redirect=book" class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;">Book Appointment</a>
+                    <?php endif; ?>
                 <?php else: ?>
-                    <a href="<?= url('patient/login') ?>" class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;">Book Appointment</a>
+                    <a href="<?= url('patient/login') ?>?redirect=book" class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;">Book Appointment</a>
                 <?php endif; ?>
             </div>
         </div>

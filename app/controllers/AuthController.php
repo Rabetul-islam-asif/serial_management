@@ -71,6 +71,12 @@ class AuthController extends BaseController {
         if (session('user_id')) {
             $this->redirect('dashboard');
         }
+        if (isset($_GET['redirect'])) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            $_SESSION['login_redirect'] = $_GET['redirect'];
+        }
         $this->view('auth/otp', [], 'auth');
     }
 
@@ -147,7 +153,14 @@ class AuthController extends BaseController {
             $_SESSION['role'] = 'patient';
             unset($_SESSION['otp_phone']);
 
-            $this->redirectWithSuccess('dashboard', 'Successfully logged in to Patient Portal.');
+            $redirect = $_SESSION['login_redirect'] ?? 'dashboard';
+            unset($_SESSION['login_redirect']);
+
+            if ($redirect === 'book') {
+                $this->redirectWithSuccess('?redirect=book', 'Successfully logged in. You can now book your slot.');
+            } else {
+                $this->redirectWithSuccess('dashboard', 'Successfully logged in to Patient Portal.');
+            }
         }
 
         $this->redirectWithError('patient/otp/verify', 'Invalid or expired OTP code.');

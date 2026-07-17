@@ -11,8 +11,8 @@
     </div>
 
     <div class="form-group m-0">
-        <label for="code" class="form-label text-center">Enter Verification Code</label>
-        <input type="text" name="code" id="code" class="form-input text-center font-mono" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required style="font-size: 24px; letter-spacing: 8px; padding: 8px;" autocomplete="one-time-code" autofocus>
+        <label for="code" class="form-label text-center">Enter Verification Code <span style="color: var(--accent); font-weight: normal; font-size: 11px;">(Demo code: 123456)</span></label>
+        <input type="text" name="code" id="code" class="form-input text-center font-mono" value="123456" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required style="font-size: 24px; letter-spacing: 8px; padding: 8px;" autocomplete="one-time-code" autofocus>
     </div>
 
     <button type="submit" class="btn btn-primary w-full mt-2" style="background: var(--accent); border-color: var(--accent);">

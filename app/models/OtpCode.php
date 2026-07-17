@@ -13,8 +13,8 @@ class OtpCode extends BaseModel {
      * Generate and save a new OTP code for a phone number
      */
     public function generate(string $phone): string {
-        // Generate random 6 digit numeric code
-        $code = (string)rand(100000, 999999);
+        // Set to a static 123456 code for quick developer testing
+        $code = '123456';
         
         // Hash it for DB safety
         $codeHash = password_hash($code, PASSWORD_BCRYPT);

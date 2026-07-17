@@ -27,7 +27,8 @@ class DashboardController extends BaseController {
                 
             case 'patient':
                 $patientPortal = new \App\Controllers\PatientPortalController();
-                return $patientPortal->index();
+                $patientPortal->index();
+                break;
                 
             default:
                 $this->redirect('logout');

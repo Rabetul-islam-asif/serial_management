@@ -1,9 +1,9 @@
 <?php $title = 'Patient Login'; ?>
 
-<form action="<?= url('patient/otp/send') ?>" method="POST" class="flex flex-col gap-4">
+<form action="<?= url('patient/otp/send') ?>" method="POST" class="flex flex-col gap-4" id="patient-login-form">
     <?= csrf_field() ?>
 
-    <div class="text-center mb-2" style="background: var(--accent-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(20, 184, 166, 0.1);">
+    <div class="text-center mb-2" style="background: var(--accent-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(16,165,172,0.12);">
         <p style="font-size: 13px; color: var(--accent); font-weight: 500;">
             Patients do not need to create an account. Simply enter the mobile number used during your appointment.
         </p>
@@ -12,7 +12,6 @@
     <div class="form-group m-0">
         <label for="phone" class="form-label">Mobile Number</label>
         <div style="position: relative; display: flex; align-items: center;">
-            <!-- Simple flag prefix for BD -->
             <span style="position: absolute; left: 16px; font-size: 14px; color: var(--text-muted); font-weight: 500;">+880</span>
             <input type="tel" name="phone" id="phone" class="form-input" placeholder="17XXXXXXXX" required style="padding-left: 60px;" autocomplete="tel" autofocus>
         </div>
@@ -23,7 +22,15 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
     </button>
 
-    <div style="border-top: 1px solid var(--bg-border); margin: 16px 0 8px 0;"></div>
+    <div style="border-top: 1px solid var(--bg-border); margin: 12px 0 4px 0;"></div>
+
+    <!-- Demo Login Section -->
+    <div style="background: var(--accent-light); border: 1px solid rgba(16,165,172,0.12); border-radius: var(--radius-sm); padding: 14px;">
+        <p style="font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; text-align: center;">🧪 Quick Demo Login</p>
+        <button type="button" class="btn btn-secondary w-full" style="font-size: 12px; padding: 8px; border-color: var(--accent); color: var(--accent);" onclick="demoPatientLogin()">
+            <span>Login as Demo Patient (01712345678)</span>
+        </button>
+    </div>
 
     <div class="text-center">
         <p style="font-size: 13px; color: var(--text-secondary);">
@@ -32,3 +39,10 @@
         </p>
     </div>
 </form>
+
+<script>
+function demoPatientLogin() {
+    document.getElementById('phone').value = '01712345678';
+    document.getElementById('patient-login-form').submit();
+}
+</script>

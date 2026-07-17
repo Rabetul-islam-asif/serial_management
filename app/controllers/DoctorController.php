@@ -25,7 +25,7 @@ class DoctorController extends BaseController {
     }
 
     /**
-     * Update Doctor Profile details
+     * Update Doctor Profile details (handles all landing page fields)
      */
     public function updateProfile(): void {
         $doctorModel = new DoctorProfile();
@@ -41,21 +41,58 @@ class DoctorController extends BaseController {
         $bmdc = trim($_POST['bmdc'] ?? '');
         $fee = floatval($_POST['fee'] ?? 0);
         $bio = trim($_POST['bio'] ?? '');
+        $hospital = trim($_POST['hospital'] ?? '');
+        $experienceYears = intval($_POST['experience_years'] ?? 0);
+        $languages = trim($_POST['languages'] ?? '');
 
         if (empty($name) || empty($degree) || empty($specialization)) {
             $this->redirectWithError('doctor/profile/edit', 'Please fill in all required fields.');
         }
 
-        $doctorModel->update($profile['id'], [
+        // Convert comma-separated languages into JSON array
+        $languagesJson = null;
+        if (!empty($languages)) {
+            $langArray = array_map('trim', explode(',', $languages));
+            $langArray = array_filter($langArray);
+            $languagesJson = json_encode(array_values($langArray));
+        }
+
+        $updateData = [
             'name' => $name,
             'degree' => $degree,
             'specialization' => $specialization,
             'bmdc_number' => $bmdc,
             'consultation_fee' => $fee,
-            'bio' => $bio
-        ]);
+            'bio' => $bio,
+            'hospital' => $hospital,
+            'experience_years' => $experienceYears,
+            'languages' => $languagesJson
+        ];
 
-        $this->redirectWithSuccess('doctor/profile/edit', 'Profile details updated successfully.');
+        // Handle photo upload
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['photo']['tmp_name'];
+            $fileName = $_FILES['photo']['name'];
+            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+            if (in_array($fileExtension, $allowedExtensions)) {
+                $uploadDir = dirname(__DIR__, 2) . '/public/uploads/photos/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                $newFileName = 'doctor_' . uniqid() . '.' . $fileExtension;
+                $destPath = $uploadDir . $newFileName;
+                
+                if (move_uploaded_file($fileTmpPath, $destPath)) {
+                    $updateData['photo'] = 'uploads/photos/' . $newFileName;
+                }
+            }
+        }
+
+        $doctorModel->update($profile['id'], $updateData);
+
+        $this->redirectWithSuccess('doctor/profile/edit', 'Profile and landing page info updated successfully.');
     }
 
     /**

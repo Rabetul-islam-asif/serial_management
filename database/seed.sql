@@ -52,3 +52,24 @@ INSERT INTO `medicines` (`name`, `generic_name`, `type`, `strength`, `manufactur
 ('Monas 10', 'Montelukast', 'tablet', '10mg', 'Acme Laboratories Ltd.', 1, 22, NOW(), NOW()),
 ('Xorel', 'Rivaroxaban', 'tablet', '10mg', 'Incepta Pharmaceuticals Ltd.', 0, 3, NOW(), NOW()),
 ('Concor 5', 'Bisoprolol Fumarate', 'tablet', '5mg', 'Merck / Square', 1, 14, NOW(), NOW());
+
+-- Doctor Education
+INSERT INTO `doctor_education` (`doctor_id`, `degree`, `institution`, `year`, `sort_order`) VALUES
+(1, 'MBBS', 'Dhaka Medical College', 2010, 1),
+(1, 'FCPS (Medicine)', 'Bangladesh College of Physicians & Surgeons', 2015, 2),
+(1, 'MD (Cardiology)', 'National Heart Foundation & Research Institute', 2018, 3);
+
+-- Doctor Services
+INSERT INTO `doctor_services` (`doctor_id`, `name`, `description`, `icon`, `sort_order`) VALUES
+(1, 'Cardiac Consultation', 'Comprehensive heart health assessment and treatment planning', 'heart', 1),
+(1, 'ECG & Stress Test', 'Electrocardiogram and exercise stress testing', 'activity', 2),
+(1, 'Echocardiography', 'Ultrasound imaging of the heart structure and function', 'monitor', 3),
+(1, 'Hypertension Management', 'Blood pressure monitoring and long-term management plans', 'trending-up', 4),
+(1, 'Diabetes Care', 'Comprehensive diabetic care and metabolic assessments', 'thermometer', 5),
+(1, 'Preventive Checkup', 'Full-body health screening and preventive medicine', 'shield', 6);
+
+-- Doctor Awards
+INSERT INTO `doctor_awards` (`doctor_id`, `title`, `year`, `description`, `sort_order`) VALUES
+(1, 'Best Young Cardiologist Award', 2020, 'Awarded by the Bangladesh Cardiac Society for outstanding clinical contribution.', 1),
+(1, 'Gold Medal in FCPS Examination', 2015, 'Highest marks in the FCPS Medicine final examination.', 2),
+(1, 'Research Excellence Award', 2022, 'For published research in interventional cardiology in international journals.', 3);

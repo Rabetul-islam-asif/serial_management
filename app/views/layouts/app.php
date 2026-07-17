@@ -7,10 +7,10 @@
     <title><?= esc($title ?? 'Doctor Serial Cloud') ?></title>
     
     <!-- CSS Stylesheets -->
-    <link rel="stylesheet" href="<?= asset('css/design-system.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/components.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/animations.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/layouts.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/design-system.css') ?>?v=1.0.1">
+    <link rel="stylesheet" href="<?= asset('css/components.css') ?>?v=1.0.1">
+    <link rel="stylesheet" href="<?= asset('css/animations.css') ?>?v=1.0.1">
+    <link rel="stylesheet" href="<?= asset('css/layouts.css') ?>?v=1.0.1">
     
     <!-- Theme Handler (Runs early to avoid flash) -->
     <script src="<?= asset('js/components/theme-switcher.js') ?>"></script>

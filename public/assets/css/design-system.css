@@ -85,6 +85,10 @@
   --sidebar-collapsed-width: 80px;
   --topbar-height: 70px;
   --max-width: 1400px;
+
+  /* Z-Indices */
+  --z-modal: 1000;
+  --z-toast: 1100;
 }
 
 /* Base Styles */

@@ -1,0 +1,8 @@
+.env
+.gemini/
+storage/logs/*.log
+storage/sessions/*
+public/uploads/prescriptions/*
+.vscode/
+.idea/
+*.local

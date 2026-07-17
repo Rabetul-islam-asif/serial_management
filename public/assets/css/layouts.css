@@ -1,0 +1,228 @@
+/* Doctor Serial Cloud — Main Application & Layout Styles */
+
+/* App Layout Grid */
+.app-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: var(--topbar-height) 1fr;
+  grid-template-areas:
+    "sidebar topbar"
+    "sidebar main";
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Sidebar Layout */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--bg-border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  transition: width var(--transition-normal);
+  z-index: var(--z-sticky);
+}
+
+.sidebar-logo {
+  height: var(--topbar-height);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--bg-border);
+}
+
+.sidebar-logo-text {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sidebar-menu {
+  padding: 24px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.sidebar-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-left: 8px;
+}
+
+.sidebar-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.sidebar-link svg {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.sidebar-link:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.sidebar-link:hover svg {
+  color: var(--primary);
+}
+
+.sidebar-link.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.sidebar-link.active svg {
+  color: var(--primary);
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--bg-border);
+}
+
+/* Topbar Layout */
+.topbar {
+  grid-area: topbar;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--bg-border);
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--bg-border);
+  border-radius: var(--radius-xs);
+  padding: 6px 12px;
+  width: 320px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+.topbar-search:hover {
+  border-color: var(--text-muted);
+}
+.topbar-search-kbd {
+  margin-left: auto;
+  font-size: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+/* Main Area Layout */
+.main-content {
+  grid-area: main;
+  overflow-y: auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* Auth Layout */
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(20, 184, 166, 0.05) 0%, transparent 40%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "main";
+  }
+  
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    z-index: 1000;
+    transition: left var(--transition-normal);
+  }
+  
+  .sidebar.active {
+    left: 0;
+  }
+}

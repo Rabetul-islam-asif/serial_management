@@ -1,0 +1,22 @@
+{
+    "name": "doctorserial/cloud",
+    "description": "Smart Queue, Digital Prescription, and Clinic Management Platform",
+    "type": "project",
+    "require": {
+        "php": ">=8.3",
+        "fpdf/fpdf": "^1.86"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/helpers/functions.php"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}

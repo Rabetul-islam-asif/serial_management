@@ -19,10 +19,7 @@ class DashboardController extends BaseController {
                 break;
                 
             case 'receptionist':
-                $this->view('dashboard/receptionist', [
-                    'title' => 'Reception Dashboard',
-                    'username' => session('name')
-                ]);
+                $this->redirect('reception/queue');
                 break;
                 
             case 'patient':

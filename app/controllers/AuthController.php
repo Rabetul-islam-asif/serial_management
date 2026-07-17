@@ -69,7 +69,17 @@ class AuthController extends BaseController {
      */
     public function showPatientLogin(): void {
         if (session('user_id')) {
-            $this->redirect('dashboard');
+            if (session('role') === 'patient') {
+                $this->redirect('dashboard');
+            } else {
+                // Clear staff session so they can test/use patient booking
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
+                $_SESSION = [];
+                session_destroy();
+                session_start();
+            }
         }
         if (isset($_GET['redirect'])) {
             if (session_status() === PHP_SESSION_NONE) {

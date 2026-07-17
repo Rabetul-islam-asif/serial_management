@@ -5,7 +5,7 @@ namespace App\Models;
 class OtpCode extends BaseModel {
     protected string $table = 'otp_codes';
     protected array $fillable = [
-        'phone', 'code_hash', 'expires_at', 'attempts', 'verified'
+        'phone', 'code_hash', 'expires_at', 'attempts', 'verified', 'created_at'
     ];
     protected bool $useTimestamps = false;
 
@@ -27,7 +27,8 @@ class OtpCode extends BaseModel {
             'code_hash' => $codeHash,
             'expires_at' => $expiresAt,
             'attempts' => 0,
-            'verified' => 0
+            'verified' => 0,
+            'created_at' => date('Y-m-d H:i:s')
         ]);
 
         return $code;

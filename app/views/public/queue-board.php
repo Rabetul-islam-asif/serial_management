@@ -42,8 +42,32 @@
     }
 </style>
 
-<div class="container">
-    <div class="queue-grid">
+<div class="container" style="padding-top: 24px;">
+    <!-- Back Button Header -->
+    <div class="flex justify-between align-center mb-4" style="border-bottom: 1px solid var(--bg-border); padding-bottom: 16px;">
+        <div class="flex align-center gap-2">
+            <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--success);"></div>
+            <span style="font-size: 14px; font-weight: 600; color: var(--text-secondary);">Live Queue Board</span>
+        </div>
+        
+        <?php
+        // Determine back URL based on user role
+        $backUrl = url(''); // Default to public doctor profile home page
+        if (session('role') === 'receptionist') {
+            $backUrl = url('reception/queue');
+        } elseif (session('role') === 'admin') {
+            $backUrl = url('dashboard');
+        } elseif (session('role') === 'patient') {
+            $backUrl = url('patient/dashboard');
+        }
+        ?>
+        <a href="<?= $backUrl ?>" class="btn btn-secondary" style="font-size: 13px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Back to Panel</span>
+        </a>
+    </div>
+
+    <div class="queue-grid" style="padding: 16px 0;">
         <!-- Left: Now Serving Panel -->
         <div class="flex flex-col gap-6">
             <div class="serving-display animate-slide-up">

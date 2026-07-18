@@ -51,7 +51,12 @@
                 <input type="hidden" name="patient_id" id="queue-patient-id" required>
 
                 <div class="form-group m-0">
-                    <label class="form-label">Selected Patient</label>
+                    <div class="flex justify-between align-center" style="margin-bottom: 6px;">
+                        <label class="form-label" style="margin: 0;">Selected Patient</label>
+                        <button type="button" class="btn btn-ghost" style="padding: 2px 8px; font-size: 11px; font-weight: 600; color: var(--accent);" onclick="openRegisterPatientModal()">
+                            + New Patient
+                        </button>
+                    </div>
                     <input type="text" id="queue-patient-name" class="form-input" style="background: var(--bg-primary);" placeholder="None" readonly required>
                 </div>
 
@@ -182,6 +187,10 @@
                                         <?php elseif ($item['status'] === 'called'): ?>
                                             <button class="btn btn-accent" style="padding: 4px 8px; font-size: 12px;" onclick="callPatient(<?= $item['id'] ?>)">Recall</button>
                                             <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px; background: var(--success); border-color: var(--success);" onclick="completePatient(<?= $item['id'] ?>)">Complete</button>
+                                        <?php elseif ($item['status'] === 'hold'): ?>
+                                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;" onclick="callPatient(<?= $item['id'] ?>)">Call</button>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; background: var(--success); border-color: var(--success);" onclick="completePatient(<?= $item['id'] ?>)">Complete</button>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="missPatient(<?= $item['id'] ?>)">Miss</button>
                                         <?php elseif ($item['status'] === 'missed'): ?>
                                             <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="rejoinPatient(<?= $item['id'] ?>)">Rejoin</button>
                                         <?php endif; ?>
@@ -264,6 +273,73 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
                 <button type="submit" class="btn btn-primary">Save Document</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Register New Patient -->
+<div id="register-patient-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Register New Patient</h3>
+            <button class="btn btn-ghost btn-icon" data-modal-close>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form id="register-patient-form">
+            <div class="modal-body flex flex-col gap-3">
+                <div class="form-group m-0">
+                    <label class="form-label" for="reg-name">Full Name</label>
+                    <input type="text" id="reg-name" class="form-input" placeholder="e.g. Abul Kalam" required>
+                </div>
+                
+                <div class="form-group m-0">
+                    <label class="form-label" for="reg-phone">Mobile Number</label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <span style="position: absolute; left: 16px; font-size: 14px; color: var(--text-muted); font-weight: 500;">+880</span>
+                        <input type="tel" id="reg-phone" class="form-input" placeholder="17XXXXXXXX" required style="padding-left: 60px;">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="form-group m-0">
+                        <label class="form-label" for="reg-age">Age (Years)</label>
+                        <input type="number" id="reg-age" class="form-input" placeholder="e.g. 45" min="1" max="120" required>
+                    </div>
+                    <div class="form-group m-0">
+                        <label class="form-label" for="reg-gender">Gender</label>
+                        <select id="reg-gender" class="form-select" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group m-0">
+                    <label class="form-label" for="reg-blood">Blood Group (Optional)</label>
+                    <select id="reg-blood" class="form-select">
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+
+                <div class="form-group m-0">
+                    <label class="form-label" for="reg-address">Address (Optional)</label>
+                    <input type="text" id="reg-address" class="form-input" placeholder="e.g. Mirpur, Dhaka">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+                <button type="submit" class="btn btn-primary">Register Patient</button>
             </div>
         </form>
     </div>
@@ -449,4 +525,53 @@
         
         Modal.open('prescription-upload-modal');
     }
+
+    // Modal register patient opening
+    function openRegisterPatientModal() {
+        document.getElementById('register-patient-form').reset();
+        Modal.open('register-patient-modal');
+    }
+
+    // AJAX submit patient registration
+    document.addEventListener('DOMContentLoaded', () => {
+        const regForm = document.getElementById('register-patient-form');
+        if (regForm) {
+            regForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                let phoneInput = document.getElementById('reg-phone').value.trim();
+                if (!phoneInput.startsWith('0')) {
+                    phoneInput = '0' + phoneInput;
+                }
+
+                const name = document.getElementById('reg-name').value.trim();
+                const age = document.getElementById('reg-age').value.trim();
+                const gender = document.getElementById('reg-gender').value;
+                const bloodGroup = document.getElementById('reg-blood').value;
+                const address = document.getElementById('reg-address').value.trim();
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                try {
+                    const response = await fetch('<?= url('reception/patient/register') ?>', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phoneInput)}&age=${encodeURIComponent(age)}&gender=${encodeURIComponent(gender)}&blood_group=${encodeURIComponent(bloodGroup)}&address=${encodeURIComponent(address)}&_token=${csrfToken}`
+                    });
+                    
+                    const data = await response.json();
+                    if (response.ok && data.id) {
+                        Toast.success('Patient registered successfully');
+                        document.getElementById('queue-patient-id').value = data.id;
+                        document.getElementById('queue-patient-name').value = `${data.name} (+880${data.phone.substring(data.phone.length - 10)})`;
+                        Modal.close('register-patient-modal');
+                    } else {
+                        Toast.error(data.error || 'Failed to register patient.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Toast.error('Network error or server exception.');
+                }
+            });
+        }
+    });
 </script>

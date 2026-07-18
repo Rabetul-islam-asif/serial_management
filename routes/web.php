@@ -40,12 +40,13 @@ $router->get('/patient/search', [\App\Controllers\PatientController::class, 'sea
 $router->get('/reception/queue', [\App\Controllers\QueueBoardController::class, 'receptionPanel'], ['auth', 'role:receptionist'], 'reception.queue');
 $router->post('/reception/queue/settings', [\App\Controllers\QueueBoardController::class, 'updateSettings'], ['auth', 'role:receptionist', 'csrf']);
 $router->post('/reception/queue/add', [\App\Controllers\SerialController::class, 'createSerial'], ['auth', 'role:receptionist', 'csrf']);
-$router->post('/reception/queue/call', [\App\Controllers\SerialController::class, 'callPatient'], ['auth', 'role:receptionist']);
-$router->post('/reception/queue/complete', [\App\Controllers\SerialController::class, 'completePatient'], ['auth', 'role:receptionist']);
-$router->post('/reception/queue/miss', [\App\Controllers\SerialController::class, 'missPatient'], ['auth', 'role:receptionist']);
-$router->post('/reception/queue/hold', [\App\Controllers\SerialController::class, 'holdPatient'], ['auth', 'role:receptionist']);
-$router->post('/reception/queue/rejoin', [\App\Controllers\SerialController::class, 'rejoinPatient'], ['auth', 'role:receptionist']);
+$router->post('/reception/queue/call', [\App\Controllers\SerialController::class, 'callPatient'], ['auth', 'role:receptionist', 'csrf']);
+$router->post('/reception/queue/complete', [\App\Controllers\SerialController::class, 'completePatient'], ['auth', 'role:receptionist', 'csrf']);
+$router->post('/reception/queue/miss', [\App\Controllers\SerialController::class, 'missPatient'], ['auth', 'role:receptionist', 'csrf']);
+$router->post('/reception/queue/hold', [\App\Controllers\SerialController::class, 'holdPatient'], ['auth', 'role:receptionist', 'csrf']);
+$router->post('/reception/queue/rejoin', [\App\Controllers\SerialController::class, 'rejoinPatient'], ['auth', 'role:receptionist', 'csrf']);
 $router->post('/reception/prescription/upload', [\App\Controllers\SerialController::class, 'uploadPrescription'], ['auth', 'role:receptionist', 'csrf']);
+$router->post('/reception/patient/register', [\App\Controllers\PatientController::class, 'register'], ['auth', 'role:receptionist', 'csrf']);
 
 // Public live board feeds
 $router->get('/queue/board', [\App\Controllers\QueueBoardController::class, 'show'], [], 'queue.board');

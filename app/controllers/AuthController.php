@@ -151,15 +151,28 @@ class AuthController extends BaseController {
         $otpModel = new OtpCode();
         if ($otpModel->verify($phone, $code)) {
             // Find or create patient record for this number
-            // Patient portal model will hook this in Phase 4.
-            // For now, we seed session:
+            $patientModel = new Patient();
+            $patient = $patientModel->findBy('phone', $phone);
+            $patientName = 'Patient (' . substr($phone, -4) . ')';
+            
+            if (!$patient) {
+                $patientModel->create([
+                    'phone' => $phone,
+                    'name' => $patientName,
+                    'age' => 30,
+                    'gender' => 'other'
+                ]);
+            } else {
+                $patientName = $patient['name'];
+            }
+
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
             
             // Log in as patient
             $_SESSION['user_id'] = $phone; // use phone as identifier
-            $_SESSION['name'] = 'Patient (' . substr($phone, -4) . ')';
+            $_SESSION['name'] = $patientName;
             $_SESSION['role'] = 'patient';
             unset($_SESSION['otp_phone']);
 

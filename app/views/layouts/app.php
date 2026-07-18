@@ -30,6 +30,11 @@
 
             <?php
             $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+            // Strip the application base URL prefix to get the clean route path
+            $appBasePath = parse_url(config('app.url', 'http://localhost/doctor-serial'), PHP_URL_PATH);
+            if ($appBasePath && strpos($currentPath, $appBasePath) === 0) {
+                $currentPath = substr($currentPath, strlen($appBasePath));
+            }
             $currentPath = trim($currentPath, '/');
             ?>
             <nav class="sidebar-menu">
@@ -37,7 +42,11 @@
                 <div class="sidebar-group">
                     <div class="sidebar-group-title">Main Panel</div>
                     <div class="sidebar-group-items">
-                        <a href="<?= url('dashboard') ?>" class="sidebar-link <?= ($currentPath === 'dashboard' || $currentPath === '') ? 'active' : '' ?>">
+                        <?php
+                        $dashboardUrl = session('role') === 'receptionist' ? url('reception/queue') : url('dashboard');
+                        $dashboardActive = ($currentPath === 'dashboard' || $currentPath === '' || (session('role') === 'receptionist' && $currentPath === 'reception/queue'));
+                        ?>
+                        <a href="<?= $dashboardUrl ?>" class="sidebar-link <?= $dashboardActive ? 'active' : '' ?>">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
                             <span>Dashboard</span>
                         </a>
@@ -53,6 +62,13 @@
                         <a href="<?= url('reception/queue') ?>" class="sidebar-link <?= ($currentPath === 'reception/queue') ? 'active' : '' ?>">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span>Manage Serials</span>
+                        </a>
+                        <?php endif; ?>
+
+                        <?php if (session('role') === 'receptionist'): ?>
+                        <a href="<?= url('queue/board') ?>" target="_blank" class="sidebar-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            <span>Public Queue Board</span>
                         </a>
                         <?php endif; ?>
 

@@ -57,7 +57,7 @@ $router->get('/doctor/medicine/search', [\App\Controllers\PrescriptionController
 $router->post('/doctor/medicine/favorite', [\App\Controllers\PrescriptionController::class, 'addFavorite'], ['auth']);
 $router->get('/doctor/prescription/new', [\App\Controllers\PrescriptionController::class, 'create'], ['auth', 'role:admin'], 'doctor.prescription.new');
 $router->post('/doctor/prescription/new', [\App\Controllers\PrescriptionController::class, 'store'], ['auth', 'role:admin', 'csrf']);
-$router->get('/doctor/prescription/print', [\App\Controllers\PrescriptionController::class, 'printView'], ['auth']);
+$router->get('/doctor/prescription/print', [\App\Controllers\PrescriptionController::class, 'printView'], [], 'doctor.prescription.print');
 
 // Patient Portal dashboard route
 $router->get('/patient/dashboard', [\App\Controllers\PatientPortalController::class, 'index'], ['auth', 'role:patient'], 'patient.dashboard');

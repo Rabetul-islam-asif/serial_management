@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>403 Forbidden — Doctor Serial Cloud</title>
-    <link rel="stylesheet" href="/public/assets/css/design-system.css">
-    <link rel="stylesheet" href="/public/assets/css/components.css">
-    <link rel="stylesheet" href="/public/assets/css/layouts.css">
+    <link rel="stylesheet" href="<?= asset('css/design-system.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/components.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/layouts.css') ?>">
 </head>
 <body style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 24px; background: var(--bg-primary);">
 
@@ -16,11 +16,11 @@
         </div>
         <h1 style="font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary);">403 Access Denied</h1>
         <p style="font-size: 14px; color: var(--text-secondary); margin-top: 8px; margin-bottom: 24px;">
-            You do not have the necessary permissions to access this page. Please sign in with a different account.
+            You do not have permission to access this page. Please sign in with a different account.
         </p>
         <div class="flex justify-center gap-3">
             <button class="btn btn-secondary" onclick="window.history.back()">Go Back</button>
-            <a href="/login" class="btn btn-primary">Sign In</a>
+            <a href="<?= url('admin') ?>" class="btn btn-primary">Staff Sign In</a>
         </div>
     </div>
 

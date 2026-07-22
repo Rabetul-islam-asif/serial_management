@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 Page Not Found — Doctor Serial Cloud</title>
-    <link rel="stylesheet" href="/public/assets/css/design-system.css">
-    <link rel="stylesheet" href="/public/assets/css/components.css">
-    <link rel="stylesheet" href="/public/assets/css/layouts.css">
+    <link rel="stylesheet" href="<?= asset('css/design-system.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/components.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/layouts.css') ?>">
 </head>
 <body style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 24px; background: var(--bg-primary);">
 
@@ -20,7 +20,7 @@
         </p>
         <div class="flex justify-center gap-3">
             <button class="btn btn-secondary" onclick="window.history.back()">Go Back</button>
-            <a href="/" class="btn btn-primary">Go Home</a>
+            <a href="<?= url('') ?>" class="btn btn-primary">Go Home</a>
         </div>
     </div>
 

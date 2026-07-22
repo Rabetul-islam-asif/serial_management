@@ -13,7 +13,16 @@ class AuthController extends BaseController {
      */
     public function showLogin(): void {
         if (session('user_id')) {
-            $this->redirect('dashboard');
+            if (session('role') === 'patient') {
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
+                $_SESSION = [];
+                session_destroy();
+                session_start();
+            } else {
+                $this->redirect('dashboard');
+            }
         }
         $this->view('auth/login', [], 'auth');
     }

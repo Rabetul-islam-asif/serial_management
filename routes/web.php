@@ -51,14 +51,14 @@ $router->post('/reception/patient/register', [\App\Controllers\PatientController
 // Public live board feeds
 $router->get('/queue/board', [\App\Controllers\QueueBoardController::class, 'show'], [], 'queue.board');
 $router->get('/queue/board/tv', [\App\Controllers\QueueBoardController::class, 'tvMode'], [], 'queue.board.tv');
-$router->get('api/queue/status', [\App\Controllers\QueueBoardController::class, 'apiStatus'], []);
+$router->get('/api/queue/status', [\App\Controllers\QueueBoardController::class, 'apiStatus'], []);
 
 // Prescription Editor routes
 $router->get('/doctor/medicine/search', [\App\Controllers\PrescriptionController::class, 'searchMedicine'], ['auth']);
 $router->post('/doctor/medicine/favorite', [\App\Controllers\PrescriptionController::class, 'addFavorite'], ['auth']);
 $router->get('/doctor/prescription/new', [\App\Controllers\PrescriptionController::class, 'create'], ['auth', 'role:admin'], 'doctor.prescription.new');
 $router->post('/doctor/prescription/new', [\App\Controllers\PrescriptionController::class, 'store'], ['auth', 'role:admin', 'csrf']);
-$router->get('/doctor/prescription/print', [\App\Controllers\PrescriptionController::class, 'printView'], [], 'doctor.prescription.print');
+$router->get('/doctor/prescription/print', [\App\Controllers\PrescriptionController::class, 'printView'], ['auth'], 'doctor.prescription.print');
 
 // Patient Portal dashboard route
 $router->get('/patient/dashboard', [\App\Controllers\PatientPortalController::class, 'index'], ['auth', 'role:patient'], 'patient.dashboard');

@@ -174,6 +174,11 @@ class PrescriptionController extends BaseController {
      * Print View
      */
     public function printView(): void {
+        // Enforce Login for privacy
+        if (!session('user_id')) {
+            $this->redirectWithError('patient/login', 'Please sign in to view and download your prescription.');
+        }
+
         $id = intval($_GET['id'] ?? 0);
         if ($id <= 0) die('Invalid ID');
 
@@ -181,6 +186,23 @@ class PrescriptionController extends BaseController {
         $p = $prescModel->getFullDetails($id);
 
         if (!$p) die('Prescription not found');
+
+        // Patient Privacy Verification: If logged in as patient, verify ownership
+        if (session('role') === 'patient') {
+            $phone = session('user_id');
+            $patientModel = new \App\Models\Patient();
+            $patient = $patientModel->findBy('phone', $phone);
+
+            if (!$patient || intval($p['patient_id']) !== intval($patient['id'])) {
+                http_response_code(403);
+                echo "<div style='font-family: sans-serif; text-align: center; margin-top: 100px; color: #1e293b;'>";
+                echo "<h1>403 Privacy Access Denied</h1>";
+                echo "<p>For patient privacy, you can only view and download prescriptions issued to your own account number.</p>";
+                echo "<p><a href='" . url('patient/dashboard') . "'>Return to Dashboard</a></p>";
+                echo "</div>";
+                exit;
+            }
+        }
 
         // Echo the raw print page directly
         echo PdfHelper::generateHtml($p);

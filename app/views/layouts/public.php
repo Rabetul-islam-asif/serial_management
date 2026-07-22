@@ -67,18 +67,44 @@
             <?php 
             $isLanding = in_array(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), ['/', '/profile', '/index.php', '']); 
             ?>
-            <div class="flex align-center gap-3">
-                <?php if (session('role') === 'patient'): ?>
-                    <a href="<?= url('patient/dashboard') ?>" class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;">My Prescriptions</a>
-                <?php endif; ?>
+            <div class="flex align-center gap-2" style="flex-wrap: wrap;">
+                <!-- 1. Book Appointment Button -->
                 <?php if (session('role') === 'patient'): ?>
                     <?php if ($isLanding): ?>
-                        <button class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;" onclick="Modal.open('booking-modal')">Book Appointment</button>
+                        <button class="btn btn-primary" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;" onclick="Modal.open('booking-modal')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span>Book Appointment</span>
+                        </button>
                     <?php else: ?>
-                        <a href="<?= url('') ?>?redirect=book" class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;">Book Appointment</a>
+                        <a href="<?= url('') ?>?redirect=book" class="btn btn-primary" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span>Book Appointment</span>
+                        </a>
                     <?php endif; ?>
                 <?php else: ?>
-                    <a href="<?= url('patient/login') ?>?redirect=book" class="btn btn-primary" style="font-size: 13px; padding: 8px 20px;">Book Appointment</a>
+                    <a href="<?= url('patient/login') ?>?redirect=book" class="btn btn-primary" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span>Book Appointment</span>
+                    </a>
+                <?php endif; ?>
+
+                <!-- 2. View Live Queue Button -->
+                <a href="<?= url('queue/board') ?>" class="btn btn-secondary" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                    <span>View Live Queue</span>
+                </a>
+
+                <!-- 3. Download Prescription Button -->
+                <?php if (session('role') === 'patient'): ?>
+                    <a href="<?= url('patient/dashboard') ?>" class="btn btn-secondary" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>Download Prescription</span>
+                    </a>
+                <?php else: ?>
+                    <a href="<?= url('patient/login') ?>" class="btn btn-secondary" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>Download Prescription</span>
+                    </a>
                 <?php endif; ?>
             </div>
         </div>

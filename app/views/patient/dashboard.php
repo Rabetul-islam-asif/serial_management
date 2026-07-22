@@ -1,4 +1,4 @@
-<?php $title = 'Patient Prescription Cloud'; ?>
+<?php $title = 'Download Prescription — Patient Cloud'; ?>
 
 <style>
     .timeline-container {
@@ -43,7 +43,7 @@
 
             <!-- Visits Timeline -->
             <div class="card">
-                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 24px;">My Consultation History</h3>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 24px;">Download Prescription History</h3>
                 
                 <?php if (empty($timeline)): ?>
                     <div class="empty-state">

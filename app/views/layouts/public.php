@@ -12,11 +12,15 @@
     <link rel="stylesheet" href="<?= asset('css/animations.css') ?>?v=1.0.1">
     <link rel="stylesheet" href="<?= asset('css/layouts.css') ?>?v=1.0.1">
     
-    <style>
+        body.public-body {
+            background: linear-gradient(rgba(241, 245, 249, 0.88), rgba(241, 245, 249, 0.94)),
+                        url('<?= asset("images/medical_bg.jpg") ?>') center/cover fixed no-repeat;
+            min-height: 100vh;
+        }
         .public-navbar {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--bg-border);
             height: 70px;
             display: flex;
@@ -52,7 +56,7 @@
         }
     </style>
 </head>
-<body>
+<body class="public-body">
 
     <!-- Public Navigation Bar -->
     <header class="public-navbar" id="main-navbar">

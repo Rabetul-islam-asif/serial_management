@@ -206,7 +206,7 @@
         <!-- Left: Doctor Profile Sidebar Section -->
         <aside class="doctor-sidebar-card animate-slide-up">
             <div class="doctor-avatar-wrap">
-                <img src="<?= asset('images/' . ($doctor['photo'] ?? 'sarah-photo.jpg')) ?>" 
+                <img src="<?= get_doctor_photo($doctor['photo'] ?? null) ?>" 
                      alt="<?= esc($doctor['name'] ?? 'Doctor') ?>" 
                      class="doctor-avatar-img"
                      id="doc-photo"

@@ -595,7 +595,7 @@
 
                     <!-- Doctor Portrait Image -->
                     <img class="hero-doctor-img" 
-                         src="<?= asset('images/doctor_portrait.jpg') ?>" 
+                         src="<?= get_doctor_photo($profile['photo'] ?? null) ?>" 
                          alt="<?= esc($profile['name']) ?>"
                          onerror="this.onerror=null; this.src='https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=400';">
                 </div>

@@ -156,7 +156,7 @@ class QueueBoardController extends BaseController {
                 'specialization' => $doctor['specialization'],
                 'hospital' => $doctor['hospital'],
                 'bmdc_number' => $doctor['bmdc_number'],
-                'photo' => asset('images/' . ($doctor['photo'] ?? 'sarah-photo.jpg'))
+                'photo' => get_doctor_photo($doctor['photo'] ?? null)
             ] : null,
             'chamber' => $chamber ? [
                 'name' => $chamber['name'],

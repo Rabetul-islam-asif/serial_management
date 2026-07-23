@@ -11,20 +11,26 @@ class Serial extends BaseModel {
     ];
 
     /**
+     * Ensure active queue serials auto-rollover to today's date if no serials exist for today
+     */
+    public function ensureTodayQueue(int $chamberId, string $date): void {
+        if ($date === date('Y-m-d')) {
+            $checkSql = "SELECT COUNT(*) as cnt FROM {$this->table} WHERE chamber_id = :chamber_id AND serial_date = :date";
+            $res = $this->query($checkSql, ['chamber_id' => $chamberId, 'date' => $date]);
+            if (($res[0]['cnt'] ?? 0) == 0) {
+                // Auto-rollover active uncompleted serials from previous dates to today
+                $rollSql = "UPDATE {$this->table} SET serial_date = :date WHERE chamber_id = :chamber_id AND status NOT IN ('completed', 'cancelled')";
+                $this->execute($rollSql, ['chamber_id' => $chamberId, 'date' => $date]);
+            }
+        }
+    }
+
+    /**
      * Get queue list for a chamber on a date
      */
     public function getQueue(int $chamberId, string $date): array {
-        $sql = "SELECT s.*, p.name as patient_name, p.phone as patient_phone, p.age as patient_age, p.gender as patient_gender 
-                FROM {$this->table} s
-                LEFT JOIN appointments a ON s.appointment_id = a.id
-                LEFT JOIN patients p ON a.patient_id = p.id OR (s.appointment_id IS NULL AND p.phone = s.token_number) /* Fallback or direct join */
-                WHERE s.chamber_id = :chamber_id 
-                  AND s.serial_date = :date
-                ORDER BY s.queue_position ASC";
-                
-        // NOTE: In the database, we can also link serials directly to patients if needed, 
-        // but here we support matching via appointment patient or custom fallback. Let's make sure it queries correctly.
-        // Let's refine the join. To support direct patient links, we join via appointment_id -> patient_id.
+        $this->ensureTodayQueue($chamberId, $date);
+
         $sql = "SELECT s.*, p.name as patient_name, p.phone as patient_phone, p.age as patient_age, p.gender as patient_gender,
                        pr.pdf_path as prescription_path
                 FROM {$this->table} s

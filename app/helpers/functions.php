@@ -129,3 +129,26 @@ if (!function_exists('dd')) {
         exit;
     }
 }
+
+if (!function_exists('get_doctor_photo')) {
+    function get_doctor_photo(?string $photo = null): string {
+        if (empty($photo)) {
+            return asset('images/doctor_portrait.jpg');
+        }
+        if (str_starts_with($photo, 'http://') || str_starts_with($photo, 'https://')) {
+            return $photo;
+        }
+        if (str_starts_with($photo, 'uploads/') || str_starts_with($photo, 'images/')) {
+            return asset($photo);
+        }
+        $publicDir = dirname(__DIR__, 2) . '/public';
+        if (file_exists($publicDir . '/uploads/photos/' . $photo)) {
+            return asset('uploads/photos/' . $photo);
+        }
+        if (file_exists($publicDir . '/assets/images/' . $photo)) {
+            return asset('images/' . $photo);
+        }
+        return asset('images/' . ltrim($photo, '/'));
+    }
+}
+

@@ -16,22 +16,84 @@
         padding: 40px 48px;
         box-shadow: 0 12px 36px rgba(15, 23, 42, 0.06);
     }
-    .hero-content {
+    /* Reference-Style Hero Grid & Doctor Portrait Frame */
+    .hero-layout-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 36px;
+        align-items: center;
+    }
+    .hero-portrait-frame {
         position: relative;
-        z-index: 2;
         display: flex;
         align-items: center;
-        gap: 48px;
+        justify-content: center;
+        min-height: 320px;
     }
-    .hero-avatar {
-        width: 180px;
-        height: 180px;
+    .hero-circle-backdrop {
+        position: absolute;
+        width: 290px;
+        height: 290px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.28) 0%, rgba(20, 184, 166, 0.15) 70%, transparent 100%);
+        z-index: 1;
+        animation: pulseCircle 4s ease-in-out infinite alternate;
+    }
+    @keyframes pulseCircle {
+        0% { transform: scale(0.96); opacity: 0.85; }
+        100% { transform: scale(1.04); opacity: 1; }
+    }
+    .hero-doctor-img {
+        position: relative;
+        z-index: 2;
+        max-width: 280px;
+        max-height: 340px;
+        object-fit: contain;
         border-radius: 20px;
-        border: 4px solid #ffffff;
-        object-fit: cover;
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-        flex-shrink: 0;
-        background: #f1f5f9;
+        filter: drop-shadow(0 14px 28px rgba(15, 23, 42, 0.12));
+    }
+    .hero-floating-stat {
+        position: absolute;
+        top: 24px;
+        left: -10px;
+        z-index: 3;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+        border-radius: 16px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: floatBadge 3s ease-in-out infinite alternate;
+    }
+    @keyframes floatBadge {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-6px); }
+    }
+    .stat-badge-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(14, 165, 233, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0284c7;
+        font-size: 18px;
+    }
+    .stat-badge-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+    .stat-badge-desc {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 600;
     }
     .hero-info h1 {
         font-size: 36px;
@@ -437,13 +499,10 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-        .hero-content {
-            flex-direction: column;
+        .hero-layout-grid {
+            grid-template-columns: 1fr;
             text-align: center;
-        }
-        .hero-avatar {
-            width: 140px;
-            height: 140px;
+            gap: 28px;
         }
         .hero-info h1 {
             font-size: 26px;
@@ -453,6 +512,23 @@
         }
         .hero-actions {
             justify-content: center;
+        }
+        .hero-portrait-frame {
+            min-height: 260px;
+        }
+        .hero-circle-backdrop {
+            width: 220px;
+            height: 220px;
+        }
+        .hero-doctor-img {
+            max-width: 210px;
+            max-height: 260px;
+        }
+        .hero-floating-stat {
+            left: 50%;
+            transform: translateX(-50%);
+            top: -10px;
+            animation: none;
         }
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -467,23 +543,25 @@
 <section class="portfolio-hero">
     <div class="container">
         <div class="hero-glass-card">
-            <div class="hero-content">
-                <img class="hero-avatar" 
-                     src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=400" 
-                     alt="<?= esc($profile['name']) ?>">
-                
+            <div class="hero-layout-grid">
+                <!-- Left Column: Doctor Info & Quick Actions -->
                 <div class="hero-info">
-                    <h1><?= esc($profile['name']) ?></h1>
-                    <p class="hero-specialization"><?= esc($profile['specialization']) ?></p>
+                    <div style="display: inline-flex; align-center; gap: 8px; background: rgba(2, 132, 199, 0.1); padding: 4px 12px; border-radius: 20px; color: #0284c7; font-size: 12px; font-weight: 700; margin-bottom: 12px;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #0284c7; display: inline-block;"></span>
+                        <span>Available for Serial Booking Today</span>
+                    </div>
+
+                    <h1 style="font-size: 34px; font-weight: 800; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.02em;"><?= esc($profile['name']) ?></h1>
+                    <p class="hero-specialization" style="font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 16px;"><?= esc($profile['specialization']) ?></p>
                     
-                    <div class="hero-meta">
+                    <div class="hero-meta" style="margin-bottom: 24px;">
                         <span class="hero-meta-item">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                             <?= esc($profile['degree']) ?>
                         </span>
                         <span class="hero-meta-item">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                            BMDC: <?= esc($profile['bmdc_number']) ?>
+                            BMDC Reg: <?= esc($profile['bmdc_number']) ?>
                         </span>
                         <span class="hero-meta-item">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -496,6 +574,46 @@
                         </span>
                         <?php endif; ?>
                     </div>
+
+                    <div class="hero-actions">
+                        <?php if (session('role') === 'patient'): ?>
+                            <button class="btn-hero btn-hero-primary" onclick="Modal.open('booking-modal')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                <span>⚡ Book Serial Token</span>
+                            </button>
+                        <?php else: ?>
+                            <a href="<?= url('patient/login') ?>?redirect=book" class="btn-hero btn-hero-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                <span>⚡ Book Serial Token</span>
+                            </a>
+                        <?php endif; ?>
+
+                        <a href="<?= url('queue/board') ?>" class="btn-hero btn-hero-outline">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                            <span>Live Queue Tracker</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column: Doctor Portrait Frame with Circular Backdrop & Floating Stat Pill -->
+                <div class="hero-portrait-frame">
+                    <!-- Circular Backdrop Glow Circle -->
+                    <div class="hero-circle-backdrop"></div>
+
+                    <!-- Floating Glass Stat Pill Badge -->
+                    <div class="hero-floating-stat">
+                        <div class="stat-badge-icon">🩺</div>
+                        <div>
+                            <div class="stat-badge-title">2,500+</div>
+                            <div class="stat-badge-desc">Patients Treated</div>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Portrait Image -->
+                    <img class="hero-doctor-img" 
+                         src="<?= asset('images/doctor_portrait.jpg') ?>" 
+                         alt="<?= esc($profile['name']) ?>"
+                         onerror="this.onerror=null; this.src='https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y&s=400';">
                 </div>
             </div>
         </div>

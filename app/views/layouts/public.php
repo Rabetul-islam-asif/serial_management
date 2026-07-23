@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="<?= asset('css/layouts.css') ?>?v=1.0.1">
     <style>
         body.public-body {
-            background: linear-gradient(rgba(241, 245, 249, 0.88), rgba(241, 245, 249, 0.94)),
+            background: linear-gradient(rgba(241, 245, 249, 0.35), rgba(241, 245, 249, 0.45)),
                         url('<?= asset("images/medical_bg.jpg") ?>') center/cover fixed no-repeat;
             min-height: 100vh;
         }

@@ -7,17 +7,18 @@
     }
 
     .glass-card {
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.7);
         border-radius: var(--radius-lg);
-        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 12px 35px -5px rgba(15, 23, 42, 0.1);
         padding: 32px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .glass-card:hover {
-        box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.1);
+        background: rgba(255, 255, 255, 0.55);
+        box-shadow: 0 18px 40px -5px rgba(15, 23, 42, 0.15);
     }
 
     /* Header Profile Card */
@@ -48,8 +49,8 @@
         height: 100%;
         border-radius: 24px;
         object-fit: cover;
-        box-shadow: 0 12px 25px rgba(15, 23, 42, 0.12);
-        border: 4px solid #ffffff;
+        box-shadow: 0 12px 25px rgba(15, 23, 42, 0.15);
+        border: 4px solid rgba(255, 255, 255, 0.9);
         background: #f1f5f9;
     }
     .online-status-dot {
@@ -66,27 +67,28 @@
 
     /* Badges & Meta Tags */
     .badge-bmdc {
-        background: #e0f2fe;
+        background: rgba(224, 242, 254, 0.85);
         color: #0369a1;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 12px;
         padding: 4px 12px;
         border-radius: 20px;
         display: inline-flex;
         align-items: center;
         gap: 5px;
+        border: 1px solid rgba(3, 105, 161, 0.2);
     }
     .badge-fee {
-        background: #f0fdf4;
+        background: rgba(240, 253, 244, 0.85);
         color: #15803d;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 13px;
         padding: 4px 14px;
         border-radius: 20px;
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        border: 1px solid #bbf7d0;
+        border: 1px solid rgba(21, 128, 61, 0.2);
     }
 
     /* Quick Highlight Bar */
@@ -102,8 +104,10 @@
         }
     }
     .highlight-item {
-        background: rgba(255, 255, 255, 0.85);
-        border: 1px solid var(--bg-border);
+        background: rgba(255, 255, 255, 0.40);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
         border-radius: var(--radius-md);
         padding: 16px;
         text-align: center;
@@ -135,17 +139,20 @@
 
     /* Chamber Card styling */
     .public-chamber-card {
-        background: #ffffff;
-        border: 1px solid var(--bg-border);
+        background: rgba(255, 255, 255, 0.50);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.7);
         border-radius: var(--radius-md);
         padding: 24px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         gap: 16px;
-        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.03);
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
     }
     .public-chamber-card:hover {
+        background: rgba(255, 255, 255, 0.65);
         border-color: var(--primary);
     }
 
@@ -359,17 +366,17 @@
         <div class="glass-card flex flex-col gap-4">
             <h3 style="font-size: 20px; font-weight: 800; color: var(--hero-dark);">Clinical Services & Treatments Offered</h3>
             <div class="grid grid-cols-3 gap-4">
-                <div style="padding: 16px; background: rgba(255,255,255,0.8); border: 1px solid var(--bg-border); border-radius: var(--radius-md);">
-                    <div style="font-size: 15px; font-weight: 700; color: var(--hero-dark); margin-bottom: 4px;">🩺 Specialist Consultation</div>
-                    <div style="font-size: 13px; color: var(--text-secondary);">Comprehensive medical diagnosis and treatment planning.</div>
+                <div style="padding: 16px; background: rgba(255,255,255,0.40); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-md);">
+                    <div style="font-size: 15px; font-weight: 800; color: var(--hero-dark); margin-bottom: 4px;">🩺 Specialist Consultation</div>
+                    <div style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">Comprehensive medical diagnosis and treatment planning.</div>
                 </div>
-                <div style="padding: 16px; background: rgba(255,255,255,0.8); border: 1px solid var(--bg-border); border-radius: var(--radius-md);">
-                    <div style="font-size: 15px; font-weight: 700; color: var(--hero-dark); margin-bottom: 4px;">💓 Cardiac & Hypertension Care</div>
-                    <div style="font-size: 13px; color: var(--text-secondary);">High blood pressure control, ECG review & preventive cardiac care.</div>
+                <div style="padding: 16px; background: rgba(255,255,255,0.40); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-md);">
+                    <div style="font-size: 15px; font-weight: 800; color: var(--hero-dark); margin-bottom: 4px;">💓 Cardiac & Hypertension Care</div>
+                    <div style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">High blood pressure control, ECG review & preventive cardiac care.</div>
                 </div>
-                <div style="padding: 16px; background: rgba(255,255,255,0.8); border: 1px solid var(--bg-border); border-radius: var(--radius-md);">
-                    <div style="font-size: 15px; font-weight: 700; color: var(--hero-dark); margin-bottom: 4px;">📊 Report & Investigation Review</div>
-                    <div style="font-size: 13px; color: var(--text-secondary);">Priority report evaluation for returning patients.</div>
+                <div style="padding: 16px; background: rgba(255,255,255,0.40); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-md);">
+                    <div style="font-size: 15px; font-weight: 800; color: var(--hero-dark); margin-bottom: 4px;">📊 Report & Investigation Review</div>
+                    <div style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">Priority report evaluation for returning patients.</div>
                 </div>
             </div>
         </div>

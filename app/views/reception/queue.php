@@ -110,6 +110,30 @@
     .btn-rejoin:hover { background: #4f46e5; }
     .btn-rx { background: #0f766e; color: #fff; }
     .btn-rx:hover { background: #115e59; }
+
+    /* Queue Layout Grid */
+    .queue-layout {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 24px;
+    }
+    @media (max-width: 992px) {
+        .queue-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Active Serving Row Highlight */
+    .row-running {
+        background: #d1fae5 !important;
+    }
+    .row-running td {
+        color: #065f46 !important;
+        font-weight: 700;
+    }
+
+    /* Utility */
+    .mb-3 { margin-bottom: 12px; }
 </style>
 
 <div class="page-header" style="margin-bottom: 16px;">
@@ -586,70 +610,59 @@
     }
 
     async function callNextPatientInLine() {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        await postAction('<?= url('reception/queue/call-next') ?>', `chamber_id=1&_token=${encodeURIComponent(csrfToken)}`, 'Calling next waiting patient!');
+    }
+
+    // Shared AJAX POST helper with proper headers and error handling
+    async function postAction(url, body, successMsg) {
         try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const response = await fetch(`<?= url('reception/queue/call-next') ?>`, {
+            const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `chamber_id=1&_token=${encodeURIComponent(csrfToken)}`
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: body
             });
-            const data = await response.json();
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseErr) {
+                // Non-JSON response — likely a CSRF 419 HTML page
+                Toast.error('Session expired. Please refresh the page.');
+                return false;
+            }
             if (response.ok && data.success) {
-                Toast.success('Calling next waiting patient!');
+                Toast.success(successMsg || 'Action completed.');
                 setTimeout(() => window.location.reload(), 800);
+                return true;
             } else {
-                Toast.info(data.error || 'No waiting patients in queue today.');
+                Toast.error(data.error || 'Action failed. Please try again.');
+                return false;
             }
         } catch (e) {
-            console.error(e);
-            Toast.error('Failed to trigger next call.');
+            console.error('postAction error:', e);
+            Toast.error('Network error. Please check your connection.');
+            return false;
         }
+    }
+
+    function getToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     }
 
     // Helper functions for action calls
     async function callPatient(id) {
-        try {
-            const response = await fetch(`<?= url('reception/queue/call') ?>`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}&_token=${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}`
-            });
-            const data = await response.json();
-            if (data.success) {
-                Toast.success('Patient called successfully');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        } catch (e) { console.error(e); }
+        await postAction('<?= url('reception/queue/call') ?>', `id=${id}&_token=${getToken()}`, 'Patient called successfully');
     }
 
     async function completePatient(id) {
-        try {
-            const response = await fetch(`<?= url('reception/queue/complete') ?>`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}&_token=${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}`
-            });
-            const data = await response.json();
-            if (data.success) {
-                Toast.success('Visit completed.');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        } catch (e) { console.error(e); }
+        await postAction('<?= url('reception/queue/complete') ?>', `id=${id}&_token=${getToken()}`, 'Visit completed.');
     }
 
     async function missPatient(id) {
-        try {
-            const response = await fetch(`<?= url('reception/queue/miss') ?>`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}&_token=${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}`
-            });
-            const data = await response.json();
-            if (data.success) {
-                Toast.warning('Patient marked as missed.');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        } catch (e) { console.error(e); }
+        await postAction('<?= url('reception/queue/miss') ?>', `id=${id}&_token=${getToken()}`, 'Patient marked as missed.');
     }
 
     function holdPatient(id) {
@@ -661,40 +674,26 @@
         e.preventDefault();
         const id = document.getElementById('hold-serial-id').value;
         const reason = document.getElementById('hold-reason-select').value;
-        
-        try {
-            const response = await fetch(`<?= url('reception/queue/hold') ?>`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}&reason=${encodeURIComponent(reason)}&_token=${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}`
-            });
-            const data = await response.json();
-            if (data.success) {
-                Modal.close('hold-reason-modal');
-                Toast.info('Patient put on hold.');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        } catch (e) { console.error(e); }
+        const ok = await postAction('<?= url('reception/queue/hold') ?>', `id=${id}&reason=${encodeURIComponent(reason)}&_token=${getToken()}`, 'Patient put on hold.');
+        if (ok) Modal.close('hold-reason-modal');
     });
 
     async function rejoinPatient(id) {
-        Confirm.show({
-            title: 'Rejoin Missed Patient',
-            message: 'Place this patient back in queue? By default, they will rejoin after 3 patients.',
-            confirmText: 'Rejoin Now',
-            onConfirm: async () => {
-                const response = await fetch(`<?= url('reception/queue/rejoin') ?>`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `id=${id}&rejoin_after=3&_token=${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}`
-                });
-                const data = await response.json();
-                if (data.success) {
-                    Toast.success('Patient rejoined queue.');
-                    setTimeout(() => window.location.reload(), 1000);
+        if (typeof Confirm !== 'undefined' && Confirm.show) {
+            Confirm.show({
+                title: 'Rejoin Missed Patient',
+                message: 'Place this patient back in queue? They will rejoin after 3 patients.',
+                confirmText: 'Rejoin Now',
+                onConfirm: async () => {
+                    await postAction('<?= url('reception/queue/rejoin') ?>', `id=${id}&rejoin_after=3&_token=${getToken()}`, 'Patient rejoined queue.');
                 }
+            });
+        } else {
+            // Fallback if Confirm dialog not available
+            if (confirm('Place this patient back in queue after 3 patients?')) {
+                await postAction('<?= url('reception/queue/rejoin') ?>', `id=${id}&rejoin_after=3&_token=${getToken()}`, 'Patient rejoined queue.');
             }
-        });
+        }
     }
 
     function openPrescriptionModal(serialId, patientName, existingPrescPath) {

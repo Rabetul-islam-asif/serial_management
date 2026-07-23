@@ -201,6 +201,7 @@
     <!-- JS Core Script Libraries -->
     <script src="<?= asset('js/components/toast.js') ?>"></script>
     <script src="<?= asset('js/components/modal.js') ?>"></script>
+    <script src="<?= asset('js/components/confirm-dialog.js') ?>"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
 </body>
 </html>

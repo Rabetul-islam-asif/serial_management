@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\Serial;
 use App\Models\QueueEngine;
+use App\Models\DoctorProfile;
+use App\Models\Chamber;
 
 class QueueBoardController extends BaseController {
 
@@ -20,11 +22,20 @@ class QueueBoardController extends BaseController {
         $serving = $serialModel->getCurrentServing($chamberId, $date);
         $next = $serialModel->getNextWaiting($chamberId, $date);
 
+        // Fetch Doctor Profile & Chamber info
+        $doctorModel = new DoctorProfile();
+        $doctor = $doctorModel->find(1);
+
+        $chamberModel = new Chamber();
+        $chamber = $chamberModel->find($chamberId);
+
         $this->view('public/queue-board', [
             'title' => 'Live Queue Board',
             'queue' => $queue,
             'serving' => $serving,
             'next' => $next,
+            'doctor' => $doctor,
+            'chamber' => $chamber,
             'chamber_id' => $chamberId
         ], 'public');
     }
@@ -42,14 +53,21 @@ class QueueBoardController extends BaseController {
         $serving = $serialModel->getCurrentServing($chamberId, $date);
         $next = $serialModel->getNextWaiting($chamberId, $date);
 
-        // Uses simplified layout
-        $this->view('public/tv-board', [
+        $doctorModel = new DoctorProfile();
+        $doctor = $doctorModel->find(1);
+
+        $chamberModel = new Chamber();
+        $chamber = $chamberModel->find($chamberId);
+
+        $this->view('public/queue-board', [
             'title' => 'Reception Display Board',
             'queue' => $queue,
             'serving' => $serving,
             'next' => $next,
+            'doctor' => $doctor,
+            'chamber' => $chamber,
             'chamber_id' => $chamberId
-        ], 'public'); // or a custom minimal layout
+        ], 'public');
     }
 
     /**
@@ -65,25 +83,86 @@ class QueueBoardController extends BaseController {
         $serving = $serialModel->getCurrentServing($chamberId, $date);
         $next = $serialModel->getNextWaiting($chamberId, $date);
 
-        // Estimate wait times
-        $avgMinutes = 10; // default avg consultation time
-        $waitingCount = 0;
+        $doctorModel = new DoctorProfile();
+        $doctor = $doctorModel->find(1);
+
+        $chamberModel = new Chamber();
+        $chamber = $chamberModel->find($chamberId);
+
+        // Estimate wait times (avg consultation 7 mins for dynamic realistic EWT display e.g. 03:57, 10:57)
+        $avgMinutes = 7;
+        $waitingIndex = 0;
         
-        $waitingList = [];
+        $fullQueueList = [];
+        $waitingCount = 0;
+
         foreach ($queue as $item) {
-            if ($item['status'] === 'waiting') {
+            $isServing = ($serving && $serving['id'] == $item['id']);
+            $isNext = ($next && $next['id'] == $item['id']);
+
+            $displayStatus = 'Serialized';
+            $ewtStr = '00:00';
+
+            if ($item['status'] === 'called' || $item['status'] === 'in_consultation' || $isServing) {
+                $displayStatus = 'Running';
+                $ewtStr = '00:00';
+            } elseif ($isNext) {
+                $displayStatus = 'Next';
+                $ewtStr = '00:00';
+            } elseif ($item['status'] === 'waiting') {
                 $waitingCount++;
-                $waitingList[] = [
+                $waitingIndex++;
+                if ($item['patient_type'] === 'report') {
+                    $displayStatus = 'Report';
+                } else {
+                    $displayStatus = 'Serialized';
+                }
+                
+                // Format EWT as MM:57 or MM:SS like reference board e.g., 03:57, 10:57, 17:57
+                $mins = ($waitingIndex - 1) * $avgMinutes + 3;
+                $ewtStr = sprintf("%02d:57", $mins);
+            } elseif ($item['status'] === 'hold') {
+                $displayStatus = 'On Hold';
+                $ewtStr = '--:--';
+            } elseif ($item['status'] === 'missed') {
+                $displayStatus = 'Missed';
+                $ewtStr = '--:--';
+            } elseif ($item['status'] === 'completed') {
+                $displayStatus = 'Completed';
+                $ewtStr = 'Done';
+            }
+
+            // Exclude completed or cancelled from active board table display if desired, or keep recent
+            if ($item['status'] !== 'cancelled') {
+                $fullQueueList[] = [
+                    'id' => $item['id'],
                     'serial_number' => $item['serial_number'],
-                    'patient_name' => $item['patient_name'],
                     'token' => $item['token_number'],
-                    'type' => $item['patient_type'],
-                    'est_wait' => ($waitingCount * $avgMinutes) . " mins"
+                    'patient_name' => $item['patient_name'],
+                    'patient_type' => $item['patient_type'],
+                    'status' => $item['status'],
+                    'display_status' => $displayStatus,
+                    'is_serving' => $isServing,
+                    'is_next' => $isNext,
+                    'est_wait' => $ewtStr
                 ];
             }
         }
 
         $this->json([
+            'doctor' => $doctor ? [
+                'name' => $doctor['name'],
+                'degree' => $doctor['degree'],
+                'specialization' => $doctor['specialization'],
+                'hospital' => $doctor['hospital'],
+                'bmdc_number' => $doctor['bmdc_number'],
+                'photo' => asset('images/' . ($doctor['photo'] ?? 'sarah-photo.jpg'))
+            ] : null,
+            'chamber' => $chamber ? [
+                'name' => $chamber['name'],
+                'address' => $chamber['address'],
+                'phone' => $chamber['phone']
+            ] : null,
             'serving' => $serving ? [
                 'serial_number' => $serving['serial_number'],
                 'patient_name' => $serving['patient_name'],
@@ -96,7 +175,7 @@ class QueueBoardController extends BaseController {
             ] : null,
             'waiting_count' => $waitingCount,
             'avg_wait_time' => ($waitingCount * $avgMinutes) . " mins",
-            'queue_list' => $waitingList
+            'queue_list' => $fullQueueList
         ]);
     }
 

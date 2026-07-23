@@ -55,8 +55,8 @@ class SettingsController extends BaseController {
         }
 
         // 3. Fetch Recent Patient Cards for quick editing
-        $patientModel = new Patient();
-        $recentPatients = $patientModel->query("SELECT * FROM patients WHERE deleted_at IS NULL ORDER BY id DESC LIMIT 20");
+        $stmtPatients = $db->query("SELECT * FROM patients WHERE deleted_at IS NULL ORDER BY id DESC LIMIT 20");
+        $recentPatients = $stmtPatients->fetchAll();
 
         $this->view('settings/index', [
             'title' => 'Settings & Analytics Reports',

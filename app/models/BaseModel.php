@@ -154,7 +154,7 @@ abstract class BaseModel {
     /**
      * Execute manual raw queries with params
      */
-    protected function query(string $sql, array $params = []): array {
+    public function query(string $sql, array $params = []): array {
         $stmt = self::$db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
@@ -163,7 +163,7 @@ abstract class BaseModel {
     /**
      * Execute manual raw update/delete/insert
      */
-    protected function execute(string $sql, array $params = []): bool {
+    public function execute(string $sql, array $params = []): bool {
         $stmt = self::$db->prepare($sql);
         return $stmt->execute($params);
     }

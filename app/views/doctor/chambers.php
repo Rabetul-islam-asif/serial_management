@@ -53,10 +53,10 @@
         </div>
 
         <div class="grid grid-cols-2 gap-2 mt-2">
-            <button type="button" class="btn btn-secondary w-full" onclick="openEditChamberModal(<?= htmlspecialchars(json_encode($chamber), JSON_HEX_APOS | JSON_HEX_QUOT) ?>)">
+            <button type="button" class="btn btn-secondary w-full" onclick="openEditChamberModal(<?= $chamber['id'] ?>)">
                 ✏️ Edit Location Info
             </button>
-            <button type="button" class="btn btn-primary w-full" onclick="openEditScheduleModal(<?= htmlspecialchars(json_encode($chamber), JSON_HEX_APOS | JSON_HEX_QUOT) ?>)">
+            <button type="button" class="btn btn-primary w-full" onclick="openEditScheduleModal(<?= $chamber['id'] ?>)">
                 📅 Edit Visiting Schedule
             </button>
         </div>
@@ -195,6 +195,9 @@
 </div>
 
 <script>
+    // Global Chambers Data Store
+    window.CHAMBERS_DATA = <?= json_encode($chambers) ?>;
+
     function openAddChamberModal() {
         document.getElementById('add-chamber-name').value = '';
         document.getElementById('add-chamber-address').value = '';
@@ -203,7 +206,12 @@
         Modal.open('add-chamber-modal');
     }
 
-    function openEditChamberModal(chamber) {
+    function openEditChamberModal(chamberId) {
+        const chamber = (window.CHAMBERS_DATA || []).find(c => c.id == chamberId);
+        if (!chamber) {
+            console.error('Chamber not found for ID:', chamberId);
+            return;
+        }
         document.getElementById('edit-chamber-id').value = chamber.id;
         document.getElementById('edit-chamber-name').value = chamber.name || '';
         document.getElementById('edit-chamber-address').value = chamber.address || '';
@@ -212,7 +220,12 @@
         Modal.open('edit-chamber-modal');
     }
 
-    function openEditScheduleModal(chamber) {
+    function openEditScheduleModal(chamberId) {
+        const chamber = (window.CHAMBERS_DATA || []).find(c => c.id == chamberId);
+        if (!chamber) {
+            console.error('Chamber not found for ID:', chamberId);
+            return;
+        }
         document.getElementById('schedule-chamber-id').value = chamber.id;
         
         // Reset all 7 days to default state
@@ -226,7 +239,7 @@
         // Fill existing schedule items
         if (chamber.schedules && chamber.schedules.length > 0) {
             chamber.schedules.forEach(s => {
-                const day = s.day_of_week;
+                const day = parseInt(s.day_of_week);
                 if (day >= 1 && day <= 7) {
                     const activeCb = document.getElementById('sched-active-' + day);
                     const startInput = document.getElementById('sched-start-' + day);

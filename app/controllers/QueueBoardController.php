@@ -89,12 +89,19 @@ class QueueBoardController extends BaseController {
         $chamberModel = new Chamber();
         $chamber = $chamberModel->find($chamberId);
 
-        // Estimate wait times (avg consultation 7 mins for dynamic realistic EWT display e.g. 03:57, 10:57)
-        $avgMinutes = 7;
-        $waitingIndex = 0;
-        
+        // Fetch custom consultation time settings for chamber
+        $db = $serialModel->getDb();
+        $stmtNew = $db->prepare("SELECT setting_value FROM queue_settings WHERE chamber_id = :chamber_id AND setting_key = 'avg_consultation_time'");
+        $stmtNew->execute(['chamber_id' => $chamberId]);
+        $avgNewTime = intval($stmtNew->fetchColumn() ?: 7);
+
+        $stmtReport = $db->prepare("SELECT setting_value FROM queue_settings WHERE chamber_id = :chamber_id AND setting_key = 'avg_report_time'");
+        $stmtReport->execute(['chamber_id' => $chamberId]);
+        $avgReportTime = intval($stmtReport->fetchColumn() ?: 3);
+
         $fullQueueList = [];
         $waitingCount = 0;
+        $cumulativeWaitMinutes = 0;
 
         foreach ($queue as $item) {
             $isServing = ($serving && $serving['id'] == $item['id']);
@@ -111,16 +118,16 @@ class QueueBoardController extends BaseController {
                 $ewtStr = '00:00';
             } elseif ($item['status'] === 'waiting') {
                 $waitingCount++;
-                $waitingIndex++;
                 if ($item['patient_type'] === 'report') {
                     $displayStatus = 'Report';
                 } else {
                     $displayStatus = 'Serialized';
                 }
                 
-                // Format EWT as MM:57 or MM:SS like reference board e.g., 03:57, 10:57, 17:57
-                $mins = ($waitingIndex - 1) * $avgMinutes + 3;
-                $ewtStr = sprintf("%02d:57", $mins);
+                // Format EWT dynamically using patient-type duration
+                $ewtStr = sprintf("%02d:00", $cumulativeWaitMinutes);
+                $duration = ($item['patient_type'] === 'report') ? $avgReportTime : $avgNewTime;
+                $cumulativeWaitMinutes += $duration;
             } elseif ($item['status'] === 'hold') {
                 $displayStatus = 'On Hold';
                 $ewtStr = '--:--';
@@ -132,7 +139,6 @@ class QueueBoardController extends BaseController {
                 $ewtStr = 'Done';
             }
 
-            // Exclude completed or cancelled from active board table display if desired, or keep recent
             if ($item['status'] !== 'cancelled') {
                 $fullQueueList[] = [
                     'id' => $item['id'],
@@ -174,7 +180,9 @@ class QueueBoardController extends BaseController {
                 'patient_name' => $next['patient_name']
             ] : null,
             'waiting_count' => $waitingCount,
-            'avg_wait_time' => ($waitingCount * $avgMinutes) . " mins",
+            'avg_wait_time' => ($cumulativeWaitMinutes) . " mins",
+            'avg_new_time' => $avgNewTime,
+            'avg_report_time' => $avgReportTime,
             'queue_list' => $fullQueueList
         ]);
     }
@@ -189,18 +197,25 @@ class QueueBoardController extends BaseController {
         $serialModel = new Serial();
         $queue = $serialModel->getQueue($chamberId, $date);
 
-        // Fetch max online appointments setting
+        // Fetch queue settings (max_online_appointments, avg_consultation_time, avg_report_time)
         $db = $serialModel->getDb();
-        $settingsStmt = $db->prepare("SELECT setting_value FROM queue_settings WHERE chamber_id = :chamber_id AND setting_key = 'max_online_appointments'");
+        $settingsStmt = $db->prepare("SELECT setting_key, setting_value FROM queue_settings WHERE chamber_id = :chamber_id");
         $settingsStmt->execute(['chamber_id' => $chamberId]);
-        $maxOnline = $settingsStmt->fetchColumn();
+        $rawSettings = $settingsStmt->fetchAll(\PDO::FETCH_KEY_PAIR);
 
-        if ($maxOnline === false) {
-            // Seed a default limit of 20 online appointments if it does not exist
-            $maxOnline = 20;
-            $insertStmt = $db->prepare("INSERT INTO queue_settings (chamber_id, setting_key, setting_value, description, created_at, updated_at) 
-                                        VALUES (:chamber_id, 'max_online_appointments', :val, 'Maximum acceptable online appointments limit', NOW(), NOW())");
-            $insertStmt->execute(['chamber_id' => $chamberId, 'val' => $maxOnline]);
+        $maxOnline = intval($rawSettings['max_online_appointments'] ?? 20);
+        $avgNewTime = intval($rawSettings['avg_consultation_time'] ?? 7);
+        $avgReportTime = intval($rawSettings['avg_report_time'] ?? 3);
+
+        // Seed missing settings if needed
+        if (!isset($rawSettings['max_online_appointments'])) {
+            $db->prepare("INSERT INTO queue_settings (chamber_id, setting_key, setting_value, description, created_at, updated_at) VALUES (:cid, 'max_online_appointments', '20', 'Max online appointments', NOW(), NOW())")->execute(['cid' => $chamberId]);
+        }
+        if (!isset($rawSettings['avg_consultation_time'])) {
+            $db->prepare("INSERT INTO queue_settings (chamber_id, setting_key, setting_value, description, created_at, updated_at) VALUES (:cid, 'avg_consultation_time', '7', 'Avg consultation time for new patients in mins', NOW(), NOW())")->execute(['cid' => $chamberId]);
+        }
+        if (!isset($rawSettings['avg_report_time'])) {
+            $db->prepare("INSERT INTO queue_settings (chamber_id, setting_key, setting_value, description, created_at, updated_at) VALUES (:cid, 'avg_report_time', '3', 'Avg review time for report patients in mins', NOW(), NOW())")->execute(['cid' => $chamberId]);
         }
 
         // Fetch upcoming advance appointments (tomorrow and beyond)
@@ -221,7 +236,9 @@ class QueueBoardController extends BaseController {
             'title' => 'Live Queue Control',
             'queue' => $queue,
             'upcoming' => $upcoming,
-            'max_online' => intval($maxOnline),
+            'max_online' => $maxOnline,
+            'avg_new_time' => $avgNewTime,
+            'avg_report_time' => $avgReportTime,
             'chamber_id' => $chamberId
         ], 'app');
     }
@@ -251,18 +268,25 @@ class QueueBoardController extends BaseController {
     }
 
     /**
-     * Update Queue Settings (e.g. Max Online Appointments)
+     * Update Queue Settings (Max Online Appointments & Patient Consultation Durations)
      */
     public function updateSettings(): void {
         $chamberId = intval($_POST['chamber_id'] ?? 1);
         $maxOnline = intval($_POST['max_online_appointments'] ?? 20);
+        $avgNewTime = intval($_POST['avg_consultation_time'] ?? 7);
+        $avgReportTime = intval($_POST['avg_report_time'] ?? 3);
 
         $serialModel = new Serial();
         $db = $serialModel->getDb();
 
-        $updateStmt = $db->prepare("UPDATE queue_settings SET setting_value = :val, updated_at = NOW() WHERE chamber_id = :chamber_id AND setting_key = 'max_online_appointments'");
-        $updateStmt->execute(['val' => $maxOnline, 'chamber_id' => $chamberId]);
+        $upsertSql = "INSERT INTO queue_settings (chamber_id, setting_key, setting_value, created_at, updated_at) 
+                      VALUES (:cid, :key, :val, NOW(), NOW()) 
+                      ON DUPLICATE KEY UPDATE setting_value = :val, updated_at = NOW()";
 
-        $this->redirectWithSuccess('reception/queue', 'Queue capacity configuration updated successfully.');
+        $db->prepare($upsertSql)->execute(['cid' => $chamberId, 'key' => 'max_online_appointments', 'val' => $maxOnline]);
+        $db->prepare($upsertSql)->execute(['cid' => $chamberId, 'key' => 'avg_consultation_time', 'val' => $avgNewTime]);
+        $db->prepare($upsertSql)->execute(['cid' => $chamberId, 'key' => 'avg_report_time', 'val' => $avgReportTime]);
+
+        $this->redirectWithSuccess('reception/queue', 'Queue timing and patient consultation configuration updated successfully.');
     }
 }

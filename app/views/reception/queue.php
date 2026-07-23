@@ -365,17 +365,44 @@
             <?php endif; ?>
         </div>
 
-        <!-- Capacity Configuration -->
+        <!-- ⏱️ Patient Timing & Quota Customizer -->
         <div class="card">
-            <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">Queue Daily Quota</h3>
+            <div class="flex justify-between align-center mb-2">
+                <h3 style="font-size: 15px; font-weight: 800; color: var(--text-primary);">⏱️ Consultation Timings</h3>
+                <span class="badge badge-accent">Live EWT</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Set average consultation duration per patient type to calculate live wait times on the public board.</p>
+
             <form action="<?= url('reception/queue/settings') ?>" method="POST" class="flex flex-col gap-3">
                 <?= csrf_field() ?>
                 <input type="hidden" name="chamber_id" value="<?= $chamber_id ?>">
+
                 <div class="form-group m-0">
-                    <label class="form-label" for="max-online-limit">Max Online Appointments</label>
-                    <input type="number" name="max_online_appointments" id="max-online-limit" class="form-input" value="<?= $max_online ?>" min="0" required>
+                    <label class="form-label" for="input-avg-new" style="font-weight: 700; font-size: 12px;">🩺 New Patient Time (Mins)</label>
+                    <input type="number" name="avg_consultation_time" id="input-avg-new" class="form-input" value="<?= $avg_new_time ?? 7 ?>" min="1" max="60" required style="padding: 6px 10px; font-size: 13px;">
                 </div>
-                <button type="submit" class="btn btn-secondary w-full">Save Quota</button>
+
+                <div class="form-group m-0">
+                    <label class="form-label" for="input-avg-report" style="font-weight: 700; font-size: 12px;">📄 Report Patient Time (Mins)</label>
+                    <input type="number" name="avg_report_time" id="input-avg-report" class="form-input" value="<?= $avg_report_time ?? 3 ?>" min="1" max="30" required style="padding: 6px 10px; font-size: 13px;">
+                </div>
+
+                <div class="form-group m-0">
+                    <label class="form-label" for="max-online-limit" style="font-weight: 700; font-size: 12px;">🌐 Max Online Quota</label>
+                    <input type="number" name="max_online_appointments" id="max-online-limit" class="form-input" value="<?= $max_online ?>" min="0" required style="padding: 6px 10px; font-size: 13px;">
+                </div>
+
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: block;">Speed Presets</label>
+                    <div class="pill-selector-group">
+                        <button type="button" class="preset-pill" onclick="applySpeedPreset(5, 2)">⚡ 5m Fast</button>
+                        <button type="button" class="preset-pill" onclick="applySpeedPreset(7, 3)">⚡ 7m Std</button>
+                        <button type="button" class="preset-pill" onclick="applySpeedPreset(10, 4)">⚡ 10m Deep</button>
+                        <button type="button" class="preset-pill" onclick="applySpeedPreset(15, 5)">⚡ 15m Ext</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full mt-1">Save Timings & Quota</button>
             </form>
         </div>
     </div>
@@ -877,4 +904,10 @@
             });
         }
     });
+
+    function applySpeedPreset(newMins, reportMins) {
+        document.getElementById('input-avg-new').value = newMins;
+        document.getElementById('input-avg-report').value = reportMins;
+        Toast.info(`Timing preset selected: New = ${newMins}m, Report = ${reportMins}m. Click Save Timings to apply.`);
+    }
 </script>

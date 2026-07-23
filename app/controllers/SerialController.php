@@ -566,4 +566,124 @@ class SerialController extends BaseController {
         $_POST['id'] = $next['id'];
         $this->callPatient();
     }
+
+    /**
+     * Book Manual Advance Appointment (Receptionist / Admin flow for future dates)
+     */
+    public function bookManualAppointment(): void {
+        $patientId = intval($_POST['patient_id'] ?? 0);
+        $chamberId = intval($_POST['chamber_id'] ?? 1);
+        $appointmentDate = trim($_POST['appointment_date'] ?? date('Y-m-d'));
+        $patientType = $_POST['patient_type'] ?? 'normal';
+        $notes = trim($_POST['notes'] ?? '');
+
+        if ($patientId <= 0) {
+            $this->redirectWithError('reception/queue', 'Invalid Patient selection for manual appointment.');
+        }
+
+        if (strtotime($appointmentDate) < strtotime(date('Y-m-d'))) {
+            $this->redirectWithError('reception/queue', 'Appointment date cannot be in the past.');
+        }
+
+        // Parse Vitals if provided
+        $vitals = [];
+        if (!empty($_POST['bp'])) $vitals[] = 'BP: ' . trim($_POST['bp']);
+        if (!empty($_POST['weight'])) $vitals[] = 'Weight: ' . trim($_POST['weight']) . 'kg';
+        if (!empty($_POST['pulse'])) $vitals[] = 'Pulse: ' . trim($_POST['pulse']) . 'bpm';
+        
+        $vitalsStr = implode(' | ', $vitals);
+        if (!empty($vitalsStr)) {
+            $notes = empty($notes) ? $vitalsStr : $vitalsStr . ' - ' . $notes;
+        }
+
+        $serialModel = new Serial();
+        $db = $serialModel->getDb();
+        $db->beginTransaction();
+
+        try {
+            // 1. Create Appointment
+            $sqlApp = "INSERT INTO appointments (patient_id, chamber_id, appointment_date, appointment_type, status, notes, booked_by, created_at, updated_at) 
+                       VALUES (:patient_id, :chamber_id, :date, :type, 'booked', :notes, :booked_by, NOW(), NOW())";
+            $stmtApp = $db->prepare($sqlApp);
+            $stmtApp->execute([
+                'patient_id' => $patientId,
+                'chamber_id' => $chamberId,
+                'date' => $appointmentDate,
+                'type' => $patientType,
+                'notes' => $notes,
+                'booked_by' => session('user_id')
+            ]);
+            $appointmentId = $db->lastInsertId();
+
+            // 2. Reserve Serial Number & Queue Position for target date
+            $maxSerial = $serialModel->getMaxSerialNumber($chamberId, $appointmentDate);
+            $nextSerial = $maxSerial + 1;
+
+            $maxPosition = $serialModel->getMaxQueuePosition($chamberId, $appointmentDate);
+            $nextPosition = $maxPosition + 1;
+
+            $tokenNumber = "TK-" . date('ymd', strtotime($appointmentDate)) . sprintf("%03d", $nextSerial);
+
+            // Determine status: if target date is today, status is 'waiting'. If future date, status is 'waiting' reserved
+            $serialModel->create([
+                'appointment_id' => $appointmentId,
+                'chamber_id' => $chamberId,
+                'serial_date' => $appointmentDate,
+                'serial_number' => $nextSerial,
+                'queue_position' => $nextPosition,
+                'patient_type' => $patientType,
+                'status' => 'waiting',
+                'token_number' => $tokenNumber,
+                'notes' => 'Manual Reception Advance Booking: ' . $notes
+            ]);
+
+            $db->commit();
+
+            // Trigger queue reorder for that date
+            $engine = new QueueEngine();
+            $engine->reorderQueue($chamberId, $appointmentDate);
+
+            $formattedDate = date('d M Y', strtotime($appointmentDate));
+            $this->redirectWithSuccess('reception/queue', "Advance Manual Appointment booked for {$formattedDate}! Token: {$tokenNumber} (Serial #{$nextSerial})");
+
+        } catch (Exception $e) {
+            $db->rollBack();
+            $this->redirectWithError('reception/queue', 'Failed to book manual appointment: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Check-in Advance Appointment to Live Queue
+     */
+    public function checkinAppointment(): void {
+        $serialId = intval($_POST['serial_id'] ?? 0);
+        if ($serialId <= 0) {
+            $this->json(['error' => 'Invalid Serial ID'], 400);
+        }
+
+        $serialModel = new Serial();
+        $serial = $serialModel->find($serialId);
+        if (!$serial) {
+            $this->json(['error' => 'Appointment serial not found'], 404);
+        }
+
+        $today = date('Y-m-d');
+        $db = $serialModel->getDb();
+
+        try {
+            // Update appointment & serial to today's queue if required, set status to waiting
+            $serialModel->update($serialId, [
+                'serial_date' => $today,
+                'status' => 'waiting',
+                'called_at' => null
+            ]);
+
+            $engine = new QueueEngine();
+            $engine->reorderQueue($serial['chamber_id'], $today);
+
+            $this->json(['success' => true, 'message' => 'Patient checked in to today\'s live queue.']);
+        } catch (Exception $e) {
+            $this->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

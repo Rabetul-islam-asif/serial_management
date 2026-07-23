@@ -200,24 +200,29 @@
 </div>
 
 <div class="queue-layout">
-    <!-- Left Panel: Fast Clickable Register & 4-Digit Search -->
+    <!-- Left Panel: Fast Clickable Register & 4-Digit Search with Manual Advance Appointment Mode -->
     <div class="flex flex-col gap-6">
         <div class="card">
-            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Quick Add Patient to Queue</h3>
-            
-            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" id="quick-add-form">
-                <?= csrf_field() ?>
+            <!-- Mode Switcher Tabs -->
+            <div style="display: flex; gap: 4px; border-bottom: 2px solid var(--bg-border); margin-bottom: 18px; padding-bottom: 8px;">
+                <button type="button" class="preset-pill active" id="tab-btn-today" onclick="switchRegistrationMode('today', this)" style="border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;">
+                    ⚡ Today's Live Token
+                </button>
+                <button type="button" class="preset-pill" id="tab-btn-advance" onclick="switchRegistrationMode('advance', this)" style="border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;">
+                    📅 Advance Appointment
+                </button>
+            </div>
 
+            <!-- Shared Patient Search Box for Both Modes -->
+            <div class="flex flex-col gap-4">
                 <!-- Fast 4-Digit Phone / Name Search -->
                 <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 700;">🔍 Search Returning Patient</label>
+                    <label class="form-label" style="font-weight: 700;">🔍 Search Patient (Phone / Name)</label>
                     <div style="position: relative;">
                         <input type="text" id="patient-search-input" class="form-input" placeholder="Type last 4 digits or name (e.g. 678, Kalam)..." autocomplete="off">
                         <div id="patient-search-results" style="position: absolute; width: 100%; max-height: 220px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--bg-border); border-radius: var(--radius-sm); z-index: 50; display: none; box-shadow: var(--shadow-lg);"></div>
                     </div>
                 </div>
-
-                <input type="hidden" name="patient_id" id="queue-patient-id" required>
 
                 <!-- Selected Patient Name & Register Modal Link -->
                 <div class="form-group m-0">
@@ -229,6 +234,15 @@
                     </div>
                     <input type="text" id="queue-patient-name" class="form-input" style="background: var(--bg-primary); font-weight: 700;" placeholder="Select patient above or click + New Patient Card" readonly required>
                 </div>
+            </div>
+
+            <!-- ------------------------------------------------------------- -->
+            <!-- FORM 1: TODAY'S LIVE QUEUE TOKEN GENERATION -->
+            <!-- ------------------------------------------------------------- -->
+            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mt-3" id="form-mode-today">
+                <?= csrf_field() ?>
+                <input type="hidden" name="patient_id" class="shared-patient-id" required>
+                <input type="hidden" name="chamber_id" value="1">
 
                 <!-- Clickable Appointment Category Pills -->
                 <div class="form-group m-0">
@@ -242,13 +256,9 @@
                     </div>
                 </div>
 
-                <input type="hidden" name="chamber_id" value="1">
-
-                <!-- Clickable Vitals Presets (BP, Weight, Pulse, Temp) -->
+                <!-- Clickable Vitals Presets (BP, Weight, Pulse) -->
                 <div style="padding: 14px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--bg-border);">
-                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Health Vitals (Clickable Presets)</div>
-                    
-                    <!-- BP Presets -->
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Health Vitals (Optional)</div>
                     <div class="form-group m-0 mb-3">
                         <label class="form-label" style="font-size: 11px; font-weight: 600;">Blood Pressure</label>
                         <input type="text" name="bp" id="vitals-bp" class="form-input" placeholder="e.g. 120/80" style="padding: 6px 10px; font-size: 13px; margin-bottom: 6px;">
@@ -259,7 +269,6 @@
                             <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('110/70')">110/70</span>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-2 gap-2">
                         <div class="form-group m-0">
                             <label class="form-label" style="font-size: 11px; font-weight: 600;">Weight (kg)</label>
@@ -274,14 +283,86 @@
 
                 <!-- Prescription Attachment -->
                 <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 600;">Attach Scanned Rx / Document (Optional)</label>
+                    <label class="form-label" style="font-weight: 600;">Attach Scanned Rx (Optional)</label>
                     <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 12px; padding: 4px 8px;">
                 </div>
 
                 <button type="submit" class="btn btn-primary w-full mt-2" style="font-size: 15px; font-weight: 700; padding: 12px;">
-                    Generate Token & Insert to Queue
+                    Generate Today's Token & Insert
                 </button>
             </form>
+
+            <!-- ------------------------------------------------------------- -->
+            <!-- FORM 2: MANUAL ADVANCE APPOINTMENT BOOKING (FUTURE DATE) -->
+            <!-- ------------------------------------------------------------- -->
+            <form action="<?= url('reception/appointment/book') ?>" method="POST" class="flex flex-col gap-4 mt-3" id="form-mode-advance" style="display: none;">
+                <?= csrf_field() ?>
+                <input type="hidden" name="patient_id" class="shared-patient-id" required>
+                <input type="hidden" name="chamber_id" value="1">
+
+                <!-- Target Appointment Date Selector Presets -->
+                <div class="form-group m-0">
+                    <label class="form-label" style="font-weight: 700;">📅 Target Appointment Date</label>
+                    <input type="date" name="appointment_date" id="advance-date-picker" class="form-input" value="<?= date('Y-m-d', strtotime('+1 day')) ?>" min="<?= date('Y-m-d') ?>" required style="font-weight: 700; margin-bottom: 6px;">
+                    
+                    <div class="pill-selector-group">
+                        <span class="preset-pill active" onclick="setAdvanceDate('<?= date('Y-m-d', strtotime('+1 day')) ?>', this)">Tomorrow (<?= date('D, d M', strtotime('+1 day')) ?>)</span>
+                        <span class="preset-pill" onclick="setAdvanceDate('<?= date('Y-m-d', strtotime('+2 days')) ?>', this)"><?= date('D, d M', strtotime('+2 days')) ?></span>
+                        <span class="preset-pill" onclick="setAdvanceDate('<?= date('Y-m-d', strtotime('+3 days')) ?>', this)"><?= date('D, d M', strtotime('+3 days')) ?></span>
+                    </div>
+                </div>
+
+                <!-- Appointment Category -->
+                <div class="form-group m-0">
+                    <label class="form-label" style="font-weight: 700;">Appointment Category</label>
+                    <select name="patient_type" class="form-select" required>
+                        <option value="normal">🟢 Normal Walk-in (৳1000)</option>
+                        <option value="report">🔵 Report Review</option>
+                        <option value="vip">🟣 Follow-up Visit</option>
+                        <option value="emergency">🔴 Emergency Reserved</option>
+                    </select>
+                </div>
+
+                <!-- Optional Notes -->
+                <div class="form-group m-0">
+                    <label class="form-label" style="font-weight: 600;">Advance Booking Notes / Phone Instruction</label>
+                    <input type="text" name="notes" class="form-input" placeholder="e.g. Phone appointment request, morning shift">
+                </div>
+
+                <button type="submit" class="btn btn-secondary w-full mt-2" style="font-size: 15px; font-weight: 700; padding: 12px; background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff;">
+                    📅 Reserve Advance Appointment
+                </button>
+            </form>
+        </div>
+
+        <!-- Advance Appointments List Card -->
+        <div class="card">
+            <div class="flex justify-between align-center" style="margin-bottom: 12px;">
+                <h3 style="font-size: 15px; font-weight: 700; margin: 0;">📅 Reserved Advance Bookings</h3>
+                <span class="badge badge-primary"><?= count($upcoming ?? []) ?> Booked</span>
+            </div>
+            
+            <?php if (empty($upcoming)): ?>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0; text-align: center; padding: 12px 0;">No upcoming manual appointments reserved.</p>
+            <?php else: ?>
+                <div class="flex flex-col gap-2" style="max-height: 220px; overflow-y: auto;">
+                    <?php foreach ($upcoming as $up): ?>
+                        <div style="padding: 10px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--bg-border);" class="flex justify-between align-center">
+                            <div>
+                                <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">
+                                    #<?= sprintf("%02d", $up['serial_number']) ?> <?= esc($up['patient_name']) ?>
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-muted);">
+                                    📅 <?= date('d M Y', strtotime($up['serial_date'])) ?> • <?= esc($up['token_number']) ?>
+                                </div>
+                            </div>
+                            <button type="button" class="row-action-btn btn-complete" style="font-size: 11px; padding: 3px 8px;" onclick="checkinAppointment(<?= $up['id'] ?>)">
+                                Check-in ➔
+                            </button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
 
         <!-- Capacity Configuration -->
@@ -579,7 +660,7 @@
                 const id = item.dataset.id;
                 const name = item.dataset.name;
                 
-                patientId.value = id;
+                document.querySelectorAll('.shared-patient-id').forEach(el => el.value = id);
                 patientName.value = name;
                 
                 results.style.display = 'none';
@@ -595,6 +676,30 @@
         });
     });
 
+    // Mode Switcher (Today's Token vs Advance Manual Appointment)
+    function switchRegistrationMode(mode, btn) {
+        document.getElementById('tab-btn-today').classList.remove('active');
+        document.getElementById('tab-btn-advance').classList.remove('active');
+        btn.classList.add('active');
+
+        if (mode === 'today') {
+            document.getElementById('form-mode-today').style.display = 'flex';
+            document.getElementById('form-mode-advance').style.display = 'none';
+        } else {
+            document.getElementById('form-mode-today').style.display = 'none';
+            document.getElementById('form-mode-advance').style.display = 'flex';
+        }
+    }
+
+    function setAdvanceDate(dateStr, el) {
+        document.getElementById('advance-date-picker').value = dateStr;
+        const parent = el.closest('.pill-selector-group');
+        if (parent) {
+            parent.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+        }
+        el.classList.add('active');
+    }
+
     // Fast Clickable Preset Handlers
     function setVisitType(type, el) {
         document.getElementById('input-patient-type').value = type;
@@ -607,6 +712,10 @@
 
     function setBP(val) {
         document.getElementById('vitals-bp').value = val;
+    }
+
+    async function checkinAppointment(serialId) {
+        await postAction('<?= url('reception/appointment/checkin') ?>', `serial_id=${serialId}&_token=${getToken()}`, 'Patient checked in to today\'s live queue.');
     }
 
     async function callNextPatientInLine() {
@@ -755,7 +864,7 @@
                     const data = await response.json();
                     if (response.ok && data.id) {
                         Toast.success('Patient registered successfully');
-                        document.getElementById('queue-patient-id').value = data.id;
+                        document.querySelectorAll('.shared-patient-id').forEach(el => el.value = data.id);
                         document.getElementById('queue-patient-name').value = `${data.name} (+880${data.phone.substring(data.phone.length - 10)})`;
                         Modal.close('register-patient-modal');
                     } else {

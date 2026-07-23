@@ -203,12 +203,51 @@ class QueueBoardController extends BaseController {
             $insertStmt->execute(['chamber_id' => $chamberId, 'val' => $maxOnline]);
         }
 
+        // Fetch upcoming advance appointments (tomorrow and beyond)
+        $upcomingSql = "SELECT s.*, p.name as patient_name, p.phone as patient_phone, p.age as patient_age
+                        FROM serials s
+                        INNER JOIN appointments a ON s.appointment_id = a.id
+                        INNER JOIN patients p ON a.patient_id = p.id
+                        WHERE s.chamber_id = :chamber_id 
+                          AND s.serial_date > :today
+                          AND s.status NOT IN ('cancelled', 'completed')
+                        ORDER BY s.serial_date ASC, s.serial_number ASC
+                        LIMIT 30";
+        $upcomingStmt = $db->prepare($upcomingSql);
+        $upcomingStmt->execute(['chamber_id' => $chamberId, 'today' => $date]);
+        $upcoming = $upcomingStmt->fetchAll();
+
         $this->view('reception/queue', [
             'title' => 'Live Queue Control',
             'queue' => $queue,
+            'upcoming' => $upcoming,
             'max_online' => intval($maxOnline),
             'chamber_id' => $chamberId
         ], 'app');
+    }
+
+    /**
+     * Get Upcoming Advance Appointments (AJAX)
+     */
+    public function getUpcomingAppointments(): void {
+        $chamberId = intval($_GET['chamber_id'] ?? 1);
+        $today = date('Y-m-d');
+        
+        $serialModel = new Serial();
+        $db = $serialModel->getDb();
+        
+        $upcomingSql = "SELECT s.*, p.name as patient_name, p.phone as patient_phone, p.age as patient_age
+                        FROM serials s
+                        INNER JOIN appointments a ON s.appointment_id = a.id
+                        INNER JOIN patients p ON a.patient_id = p.id
+                        WHERE s.chamber_id = :chamber_id 
+                          AND s.serial_date > :today
+                          AND s.status NOT IN ('cancelled', 'completed')
+                        ORDER BY s.serial_date ASC, s.serial_number ASC";
+        $upcomingStmt = $db->prepare($upcomingSql);
+        $upcomingStmt->execute(['chamber_id' => $chamberId, 'today' => $today]);
+        
+        $this->json($upcomingStmt->fetchAll());
     }
 
     /**

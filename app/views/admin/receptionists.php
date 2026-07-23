@@ -22,12 +22,13 @@
                     <th>Mobile Phone</th>
                     <th>Account Status</th>
                     <th>Created Date</th>
+                    <th style="text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($receptionists)): ?>
                     <tr>
-                        <td colspan="5" class="text-center" style="padding: 48px; color: var(--text-muted);">
+                        <td colspan="6" class="text-center" style="padding: 48px; color: var(--text-muted);">
                             No receptionist accounts created yet.
                         </td>
                     </tr>
@@ -45,6 +46,11 @@
                                 <?php endif; ?>
                             </td>
                             <td style="font-size: 13px; color: var(--text-secondary);"><?= date('M d, Y', strtotime($rep['created_at'])) ?></td>
+                            <td style="text-align: right;">
+                                <button type="button" class="row-action-btn btn-call" style="font-size: 11px;" onclick="openResetPasswordModal(<?= $rep['id'] ?>, '<?= esc(addslashes($rep['name'])) ?>')">
+                                    🔑 Reset Password
+                                </button>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -53,7 +59,7 @@
     </div>
 </div>
 
-<!-- Modal Create Receptionist -->
+<!-- Modal 1: Create Receptionist -->
 <div id="receptionist-create-modal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -89,3 +95,41 @@
         </form>
     </div>
 </div>
+
+<!-- Modal 2: Reset Password -->
+<div id="reset-password-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Reset Staff Password</h3>
+            <button class="btn btn-ghost btn-icon" data-modal-close>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form action="<?= url('admin/receptionists/reset-password') ?>" method="POST">
+            <?= csrf_field() ?>
+            <input type="hidden" name="user_id" id="reset-user-id">
+            <div class="modal-body flex flex-col gap-3">
+                <p style="font-size: 13px; color: var(--text-secondary);">
+                    Set a new password for <span id="reset-user-name" class="font-bold" style="color: var(--text-primary);">Staff</span>.
+                </p>
+                <div class="form-group m-0">
+                    <label class="form-label" for="new-password">New Password</label>
+                    <input type="password" name="new_password" id="new-password" class="form-input" placeholder="Enter new password" required minlength="4">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openResetPasswordModal(id, name) {
+        document.getElementById('reset-user-id').value = id;
+        document.getElementById('reset-user-name').innerText = name;
+        document.getElementById('new-password').value = '';
+        Modal.open('reset-password-modal');
+    }
+</script>

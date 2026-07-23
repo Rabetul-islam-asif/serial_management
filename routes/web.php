@@ -35,6 +35,9 @@ $router->post('/settings/patient/update', [\App\Controllers\SettingsController::
 $router->get('/doctor/profile/edit', [\App\Controllers\DoctorController::class, 'editProfile'], ['auth', 'role:admin'], 'doctor.profile.edit');
 $router->post('/doctor/profile/edit', [\App\Controllers\DoctorController::class, 'updateProfile'], ['auth', 'role:admin', 'csrf']);
 $router->get('/doctor/chambers', [\App\Controllers\DoctorController::class, 'manageChambers'], ['auth', 'role:admin'], 'doctor.chambers');
+$router->post('/doctor/chambers/add', [\App\Controllers\DoctorController::class, 'addChamber'], ['auth', 'role:admin', 'csrf']);
+$router->post('/doctor/chambers/edit', [\App\Controllers\DoctorController::class, 'updateChamber'], ['auth', 'role:admin', 'csrf']);
+$router->post('/doctor/chambers/schedule/update', [\App\Controllers\DoctorController::class, 'updateChamberSchedule'], ['auth', 'role:admin', 'csrf']);
 
 // Patient Search autocomplete route
 $router->get('/patient/search', [\App\Controllers\PatientController::class, 'search'], ['auth']);
@@ -73,6 +76,7 @@ $router->get('/patient/dashboard', [\App\Controllers\PatientPortalController::cl
 // Admin panel management routes (Phase 5)
 $router->get('/admin/receptionists', [\App\Controllers\AdminController::class, 'receptionists'], ['auth', 'role:admin'], 'admin.receptionists');
 $router->post('/admin/receptionists/new', [\App\Controllers\AdminController::class, 'createReceptionist'], ['auth', 'role:admin', 'csrf']);
+$router->post('/admin/receptionists/reset-password', [\App\Controllers\AdminController::class, 'resetReceptionistPassword'], ['auth', 'role:admin', 'csrf']);
 $router->get('/admin/patients', [\App\Controllers\AdminController::class, 'patients'], ['auth', 'role:admin'], 'admin.patients');
 $router->get('/admin/audit-logs', [\App\Controllers\AdminController::class, 'auditLogs'], ['auth', 'role:admin'], 'admin.audit-logs');
 $router->get('/admin/analytics', [\App\Controllers\AnalyticsController::class, 'show'], ['auth', 'role:admin'], 'admin.analytics');

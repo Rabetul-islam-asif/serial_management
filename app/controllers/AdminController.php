@@ -85,4 +85,23 @@ class AdminController extends BaseController {
             'logs' => $logs
         ]);
     }
+
+    /**
+     * Reset Receptionist Password
+     */
+    public function resetReceptionistPassword(): void {
+        $userId = intval($_POST['user_id'] ?? 0);
+        $newPassword = $_POST['new_password'] ?? '';
+
+        if ($userId <= 0 || empty($newPassword)) {
+            $this->redirectWithError('admin/receptionists', 'User ID and new password are required.');
+        }
+
+        $userModel = new User();
+        $userModel->update($userId, [
+            'password_hash' => password_hash($newPassword, PASSWORD_BCRYPT)
+        ]);
+
+        $this->redirectWithSuccess('admin/receptionists', 'Receptionist password updated successfully.');
+    }
 }

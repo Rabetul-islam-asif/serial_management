@@ -30,19 +30,6 @@
         justify-content: center;
         min-height: 320px;
     }
-    .hero-circle-backdrop {
-        position: absolute;
-        width: 290px;
-        height: 290px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(14, 165, 233, 0.28) 0%, rgba(20, 184, 166, 0.15) 70%, transparent 100%);
-        z-index: 1;
-        animation: pulseCircle 4s ease-in-out infinite alternate;
-    }
-    @keyframes pulseCircle {
-        0% { transform: scale(0.96); opacity: 0.85; }
-        100% { transform: scale(1.04); opacity: 1; }
-    }
     .hero-doctor-img {
         position: relative;
         z-index: 2;
@@ -595,11 +582,8 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Doctor Portrait Frame with Circular Backdrop & Floating Stat Pill -->
+                <!-- Right Column: Doctor Portrait Frame & Floating Stat Pill -->
                 <div class="hero-portrait-frame">
-                    <!-- Circular Backdrop Glow Circle -->
-                    <div class="hero-circle-backdrop"></div>
-
                     <!-- Floating Glass Stat Pill Badge -->
                     <div class="hero-floating-stat">
                         <div class="stat-badge-icon">🩺</div>

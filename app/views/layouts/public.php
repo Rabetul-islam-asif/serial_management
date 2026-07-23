@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="<?= asset('css/components.css') ?>?v=1.0.1">
     <link rel="stylesheet" href="<?= asset('css/animations.css') ?>?v=1.0.1">
     <link rel="stylesheet" href="<?= asset('css/layouts.css') ?>?v=1.0.1">
-    
+    <style>
         body.public-body {
             background: linear-gradient(rgba(241, 245, 249, 0.88), rgba(241, 245, 249, 0.94)),
                         url('<?= asset("images/medical_bg.jpg") ?>') center/cover fixed no-repeat;

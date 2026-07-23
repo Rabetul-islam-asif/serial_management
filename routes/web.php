@@ -27,6 +27,9 @@ $router->post('/appointment/book', [\App\Controllers\SerialController::class, 'b
 // Doctor & Receptionist Shared Authenticated Routes
 // -------------------------------------------------------------
 $router->get('/dashboard', [\App\Controllers\DashboardController::class, 'index'], ['auth'], 'dashboard');
+$router->get('/settings', [\App\Controllers\SettingsController::class, 'index'], ['auth', 'role:admin,receptionist'], 'settings');
+$router->post('/settings/quotas', [\App\Controllers\SettingsController::class, 'updateQuotas'], ['auth', 'role:admin,receptionist', 'csrf']);
+$router->post('/settings/patient/update', [\App\Controllers\SettingsController::class, 'updatePatient'], ['auth', 'role:admin,receptionist', 'csrf']);
 
 // Doctor Profile & Chamber Management routes
 $router->get('/doctor/profile/edit', [\App\Controllers\DoctorController::class, 'editProfile'], ['auth', 'role:admin'], 'doctor.profile.edit');

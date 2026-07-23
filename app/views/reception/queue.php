@@ -1,119 +1,268 @@
-<?php $title = 'Receptionist Queue Panel'; ?>
+<?php $title = 'Receptionist Queue Control'; ?>
 
 <style>
-    .queue-layout {
+    /* Hero Action Banner */
+    .reception-hero-banner {
+        background: radial-gradient(circle at top right, #0f172a, #1e293b);
+        color: #ffffff;
+        border-radius: var(--radius-lg);
+        padding: 24px 32px;
         display: grid;
-        grid-template-columns: 1fr 2fr;
+        grid-template-columns: 2fr 1.5fr 1fr;
         gap: 24px;
+        align-items: center;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+        margin-bottom: 24px;
     }
-    .queue-status-col {
-        border: 1px solid var(--bg-border);
+    @media (max-width: 992px) {
+        .reception-hero-banner {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+    }
+    .call-next-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 800;
+        padding: 16px 28px;
         border-radius: var(--radius-md);
-        padding: 16px;
-        background: var(--bg-surface);
-        min-height: 400px;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+    .call-next-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+    .call-next-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Clickable Pill Selectors */
+    .pill-selector-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .preset-pill {
+        background: var(--bg-primary);
+        border: 1px solid var(--bg-border);
+        color: var(--text-secondary);
+        padding: 6px 14px;
+        border-radius: var(--radius-full);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        user-select: none;
+    }
+    .preset-pill:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    .preset-pill.active {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+    }
+    .stepper-btn {
+        background: var(--bg-primary);
+        border: 1px solid var(--bg-border);
+        color: var(--text-primary);
+        font-weight: 700;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .stepper-btn:hover {
+        background: var(--bg-border);
+    }
+
+    /* Action Row Toolbar */
+    .row-action-btn {
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .btn-call { background: #0284c7; color: #fff; }
+    .btn-call:hover { background: #0369a1; }
+    .btn-complete { background: #10b981; color: #fff; }
+    .btn-complete:hover { background: #059669; }
+    .btn-hold { background: #f59e0b; color: #fff; }
+    .btn-hold:hover { background: #d97706; }
+    .btn-miss { background: #ef4444; color: #fff; }
+    .btn-miss:hover { background: #dc2626; }
+    .btn-rejoin { background: #6366f1; color: #fff; }
+    .btn-rejoin:hover { background: #4f46e5; }
+    .btn-rx { background: #0f766e; color: #fff; }
+    .btn-rx:hover { background: #115e59; }
 </style>
 
-<div class="page-header">
+<div class="page-header" style="margin-bottom: 16px;">
     <div class="flex flex-col">
-        <h1 class="page-title">Live Queue Control</h1>
-        <p style="font-size: 13px; color: var(--text-muted);">Manage real-time chamber flow, recall skipped tokens, and override patient order priorities.</p>
+        <h1 class="page-title">Chamber Queue Management</h1>
+        <p style="font-size: 13px; color: var(--text-muted);">Ultra-fast patient registration, one-click caller actions, and prescription attachments.</p>
     </div>
     
     <div class="flex gap-2">
         <button class="btn btn-secondary" onclick="window.location.reload()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-            <span>Sync</span>
+            <span>Sync Board</span>
         </button>
     </div>
 </div>
 
-<div class="queue-layout mt-4">
-    <!-- Left Panel: Quick Register & Search Patient -->
+<!-- 🚀 Top Hero Call Next Action Banner -->
+<div class="reception-hero-banner animate-slide-up">
+    <!-- Current Serving Patient -->
+    <div>
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8;">NOW SERVING PATIENT</span>
+        <div style="font-size: 24px; font-weight: 800; color: #38bdf8; margin-top: 4px;" id="hero-serving-name">
+            <?php
+            $servingPatient = null;
+            $nextPatient = null;
+            foreach ($queue as $q) {
+                if ($q['status'] === 'called' || $q['status'] === 'in_consultation') {
+                    $servingPatient = $q;
+                    break;
+                }
+            }
+            foreach ($queue as $q) {
+                if ($q['status'] === 'waiting') {
+                    $nextPatient = $q;
+                    break;
+                }
+            }
+            ?>
+            <?= $servingPatient ? '#' . sprintf("%02d", $servingPatient['serial_number']) . ' ' . esc($servingPatient['patient_name']) : 'Awaiting Call' ?>
+        </div>
+        <p style="font-size: 12px; color: #cbd5e1; margin-top: 2px;">
+            <?= $servingPatient ? 'Token: ' . esc($servingPatient['token_number']) : 'No patient currently inside consultation room' ?>
+        </p>
+    </div>
+
+    <!-- Next Patient in Line -->
+    <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 20px;">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8;">NEXT IN LINE</span>
+        <div style="font-size: 18px; font-weight: 700; color: #ffffff; margin-top: 4px;" id="hero-next-name">
+            <?= $nextPatient ? '#' . sprintf("%02d", $nextPatient['serial_number']) . ' ' . esc($nextPatient['patient_name']) : 'Queue Empty' ?>
+        </div>
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+            <?= $nextPatient ? 'Category: ' . ucfirst(esc($nextPatient['patient_type'])) : 'Ready for new entries' ?>
+        </p>
+    </div>
+
+    <!-- 🔊 Big 1-Click Call Next Patient Button -->
+    <div style="text-align: right;">
+        <button type="button" class="call-next-btn w-full" onclick="callNextPatientInLine()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <span>CALL NEXT</span>
+        </button>
+    </div>
+</div>
+
+<div class="queue-layout">
+    <!-- Left Panel: Fast Clickable Register & 4-Digit Search -->
     <div class="flex flex-col gap-6">
         <div class="card">
-            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Quick Add to Queue</h3>
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">Quick Add Patient to Queue</h3>
             
-            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" id="quick-add-form">
                 <?= csrf_field() ?>
 
+                <!-- Fast 4-Digit Phone / Name Search -->
                 <div class="form-group m-0">
-                    <label class="form-label">Search Existing Patient</label>
+                    <label class="form-label" style="font-weight: 700;">🔍 Search Returning Patient</label>
                     <div style="position: relative;">
-                        <input type="text" id="patient-search-input" class="form-input" placeholder="Type name or phone number..." autocomplete="off">
-                        <!-- Dropdown list results -->
-                        <div id="patient-search-results" style="position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--bg-border); border-radius: var(--radius-sm); z-index: 50; display: none; box-shadow: var(--shadow-lg);"></div>
+                        <input type="text" id="patient-search-input" class="form-input" placeholder="Type last 4 digits or name (e.g. 678, Kalam)..." autocomplete="off">
+                        <div id="patient-search-results" style="position: absolute; width: 100%; max-height: 220px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--bg-border); border-radius: var(--radius-sm); z-index: 50; display: none; box-shadow: var(--shadow-lg);"></div>
                     </div>
                 </div>
 
-                <!-- Hidden inputs to send to createSerial -->
                 <input type="hidden" name="patient_id" id="queue-patient-id" required>
 
+                <!-- Selected Patient Name & Register Modal Link -->
                 <div class="form-group m-0">
                     <div class="flex justify-between align-center" style="margin-bottom: 6px;">
-                        <label class="form-label" style="margin: 0;">Selected Patient</label>
-                        <button type="button" class="btn btn-ghost" style="padding: 2px 8px; font-size: 11px; font-weight: 600; color: var(--accent);" onclick="openRegisterPatientModal()">
-                            + New Patient
+                        <label class="form-label" style="margin: 0; font-weight: 700;">Selected Patient</label>
+                        <button type="button" class="btn btn-ghost" style="padding: 2px 8px; font-size: 12px; font-weight: 700; color: var(--primary);" onclick="openRegisterPatientModal()">
+                            + New Patient Card
                         </button>
                     </div>
-                    <input type="text" id="queue-patient-name" class="form-input" style="background: var(--bg-primary);" placeholder="None" readonly required>
+                    <input type="text" id="queue-patient-name" class="form-input" style="background: var(--bg-primary); font-weight: 700;" placeholder="Select patient above or click + New Patient Card" readonly required>
                 </div>
 
+                <!-- Clickable Appointment Category Pills -->
                 <div class="form-group m-0">
-                    <label class="form-label">Appointment Category / Priority</label>
-                    <select name="patient_type" class="form-select" required>
-                        <option value="normal">Normal Walk-in</option>
-                        <option value="report">Report Patient (Cycle priority)</option>
-                        <option value="vip">VIP Patient</option>
-                        <option value="emergency">Emergency (Front of Queue)</option>
-                    </select>
+                    <label class="form-label" style="font-weight: 700;">Visit Type / Priority</label>
+                    <input type="hidden" name="patient_type" id="input-patient-type" value="normal">
+                    <div class="pill-selector-group">
+                        <div class="preset-pill active" onclick="setVisitType('normal', this)">🟢 Normal (৳1000)</div>
+                        <div class="preset-pill" onclick="setVisitType('report', this)">🔵 Report (Priority)</div>
+                        <div class="preset-pill" onclick="setVisitType('vip', this)">🟣 Follow-up</div>
+                        <div class="preset-pill" onclick="setVisitType('emergency', this)">🔴 Emergency</div>
+                    </div>
                 </div>
 
-                <div class="form-group m-0">
-                    <label class="form-label">Chamber Room</label>
-                    <select name="chamber_id" class="form-select">
-                        <option value="1">Metro Heart Chamber (Dhanmondi)</option>
-                    </select>
-                </div>
+                <input type="hidden" name="chamber_id" value="1">
 
-                <!-- Patient Vitals & Health Conditions -->
-                <div style="padding: 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--bg-border);">
-                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Health Vitals & Conditions</div>
+                <!-- Clickable Vitals Presets (BP, Weight, Pulse, Temp) -->
+                <div style="padding: 14px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--bg-border);">
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Health Vitals (Clickable Presets)</div>
+                    
+                    <!-- BP Presets -->
+                    <div class="form-group m-0 mb-3">
+                        <label class="form-label" style="font-size: 11px; font-weight: 600;">Blood Pressure</label>
+                        <input type="text" name="bp" id="vitals-bp" class="form-input" placeholder="e.g. 120/80" style="padding: 6px 10px; font-size: 13px; margin-bottom: 6px;">
+                        <div class="pill-selector-group">
+                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('120/80')">120/80</span>
+                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('130/80')">130/80</span>
+                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('140/90')">140/90</span>
+                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('110/70')">110/70</span>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-2">
                         <div class="form-group m-0">
-                            <label class="form-label" style="font-size: 11px; font-weight: 500;">Blood Pressure</label>
-                            <input type="text" name="bp" class="form-input" placeholder="e.g. 120/80" style="padding: 6px 10px; font-size: 13px;">
+                            <label class="form-label" style="font-size: 11px; font-weight: 600;">Weight (kg)</label>
+                            <input type="number" name="weight" id="vitals-weight" class="form-input" placeholder="e.g. 70" style="padding: 6px 10px; font-size: 13px;">
                         </div>
                         <div class="form-group m-0">
-                            <label class="form-label" style="font-size: 11px; font-weight: 500;">Weight (kg)</label>
-                            <input type="number" name="weight" class="form-input" placeholder="e.g. 70" style="padding: 6px 10px; font-size: 13px;">
-                        </div>
-                        <div class="form-group m-0">
-                            <label class="form-label" style="font-size: 11px; font-weight: 500;">Pulse Rate (bpm)</label>
-                            <input type="number" name="pulse" class="form-input" placeholder="e.g. 72" style="padding: 6px 10px; font-size: 13px;">
-                        </div>
-                        <div class="form-group m-0">
-                            <label class="form-label" style="font-size: 11px; font-weight: 500;">Temperature (°F)</label>
-                            <input type="text" name="temp" class="form-input" placeholder="e.g. 98.6" style="padding: 6px 10px; font-size: 13px;">
+                            <label class="form-label" style="font-size: 11px; font-weight: 600;">Pulse (bpm)</label>
+                            <input type="number" name="pulse" id="vitals-pulse" class="form-input" placeholder="e.g. 72" style="padding: 6px 10px; font-size: 13px;">
                         </div>
                     </div>
                 </div>
 
-                <!-- Prescription Upload Option -->
+                <!-- Prescription Attachment -->
                 <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 500;">Upload Scan Prescription (Optional)</label>
-                    <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 13px; padding: 4px 8px;">
+                    <label class="form-label" style="font-weight: 600;">Attach Scanned Rx / Document (Optional)</label>
+                    <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 12px; padding: 4px 8px;">
                 </div>
 
-                <button type="submit" class="btn btn-primary w-full mt-2">Generate Token & Insert</button>
+                <button type="submit" class="btn btn-primary w-full mt-2" style="font-size: 15px; font-weight: 700; padding: 12px;">
+                    Generate Token & Insert to Queue
+                </button>
             </form>
         </div>
 
-        <!-- Queue Capacity Configuration Card -->
+        <!-- Capacity Configuration -->
         <div class="card">
-            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Queue Settings</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Set the maximum acceptable online appointments for today's session.</p>
+            <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 8px;">Queue Daily Quota</h3>
             <form action="<?= url('reception/queue/settings') ?>" method="POST" class="flex flex-col gap-3">
                 <?= csrf_field() ?>
                 <input type="hidden" name="chamber_id" value="<?= $chamber_id ?>">
@@ -121,41 +270,49 @@
                     <label class="form-label" for="max-online-limit">Max Online Appointments</label>
                     <input type="number" name="max_online_appointments" id="max-online-limit" class="form-input" value="<?= $max_online ?>" min="0" required>
                 </div>
-                <button type="submit" class="btn btn-secondary w-full">Save Configuration</button>
+                <button type="submit" class="btn btn-secondary w-full">Save Quota</button>
             </form>
         </div>
     </div>
 
-    <!-- Right Panel: Queue Live Board table -->
+    <!-- Right Panel: Queue Live Board Table with Action Buttons -->
     <div class="card flex flex-col gap-4">
         <div class="flex justify-between align-center">
-            <h3 style="font-size: 16px; font-weight: 600;">Active Chamber Queue</h3>
-            <span class="badge badge-accent badge-pulse">Chamber Live</span>
+            <div>
+                <h3 style="font-size: 17px; font-weight: 800; color: var(--text-primary);">Active Patient Queue</h3>
+                <span style="font-size: 12px; color: var(--text-muted);">Real-time patient flow & fast row actions</span>
+            </div>
+            <span class="badge badge-accent badge-pulse">Live Session</span>
         </div>
 
         <div class="table-container" style="border: none; box-shadow: none;">
             <table class="table-premium w-full">
                 <thead>
                     <tr>
-                        <th>Serial</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Action Buttons</th>
+                        <th style="width: 10%;">Serial</th>
+                        <th style="width: 32%;">Patient Name</th>
+                        <th style="width: 15%;">Category</th>
+                        <th style="width: 15%;">Status</th>
+                        <th style="width: 28%; text-align: right;">Action Toolbar</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($queue)): ?>
                         <tr>
                             <td colspan="5" class="text-center" style="padding: 48px; color: var(--text-muted);">
-                                No patients are currently waiting in the queue.
+                                No patients are currently waiting in the queue today.
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($queue as $item): ?>
-                            <tr>
-                                <td class="font-mono">#<?= sprintf("%02d", $item['serial_number']) ?></td>
-                                <td class="font-semibold"><?= esc($item['patient_name']) ?> (<?= esc($item['patient_age']) ?>)</td>
+                            <tr class="<?= $item['status'] === 'called' ? 'row-running' : '' ?>">
+                                <td class="font-mono font-bold" style="font-size: 16px;">#<?= sprintf("%02d", $item['serial_number']) ?></td>
+                                <td>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold" style="font-size: 14px; color: var(--text-primary);"><?= esc($item['patient_name']) ?></span>
+                                        <span style="font-size: 11px; color: var(--text-muted);">Phone: <?= esc($item['patient_phone']) ?> • Age: <?= esc($item['patient_age']) ?>y</span>
+                                    </div>
+                                </td>
                                 <td>
                                     <?php if ($item['patient_type'] === 'report'): ?>
                                         <span class="badge badge-accent">Report</span>
@@ -174,29 +331,32 @@
                                         <span class="badge badge-warning">On Hold</span>
                                     <?php elseif ($item['status'] === 'missed'): ?>
                                         <span class="badge badge-danger">Missed</span>
+                                    <?php elseif ($item['status'] === 'completed'): ?>
+                                        <span class="badge badge-success">Completed</span>
                                     <?php else: ?>
                                         <span class="badge badge-primary" style="background: var(--bg-primary); color: var(--text-secondary);">Waiting</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
-                                    <div class="flex gap-1">
+                                <td style="text-align: right;">
+                                    <div class="flex gap-1 justify-end flex-wrap">
                                         <?php if ($item['status'] === 'waiting'): ?>
-                                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;" onclick="callPatient(<?= $item['id'] ?>)">Call</button>
-                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="holdPatient(<?= $item['id'] ?>)">Hold</button>
-                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="missPatient(<?= $item['id'] ?>)">Miss</button>
+                                            <button class="row-action-btn btn-call" onclick="callPatient(<?= $item['id'] ?>)">🔊 Call</button>
+                                            <button class="row-action-btn btn-hold" onclick="holdPatient(<?= $item['id'] ?>)">⏸️ Hold</button>
+                                            <button class="row-action-btn btn-miss" onclick="missPatient(<?= $item['id'] ?>)">❌ Miss</button>
                                         <?php elseif ($item['status'] === 'called'): ?>
-                                            <button class="btn btn-accent" style="padding: 4px 8px; font-size: 12px;" onclick="callPatient(<?= $item['id'] ?>)">Recall</button>
-                                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px; background: var(--success); border-color: var(--success);" onclick="completePatient(<?= $item['id'] ?>)">Complete</button>
+                                            <button class="row-action-btn btn-call" onclick="callPatient(<?= $item['id'] ?>)">🔊 Recall</button>
+                                            <button class="row-action-btn btn-complete" onclick="completePatient(<?= $item['id'] ?>)">✅ Complete</button>
                                         <?php elseif ($item['status'] === 'hold'): ?>
-                                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;" onclick="callPatient(<?= $item['id'] ?>)">Call</button>
-                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; background: var(--success); border-color: var(--success);" onclick="completePatient(<?= $item['id'] ?>)">Complete</button>
-                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="missPatient(<?= $item['id'] ?>)">Miss</button>
+                                            <button class="row-action-btn btn-call" onclick="callPatient(<?= $item['id'] ?>)">🔊 Call</button>
+                                            <button class="row-action-btn btn-complete" onclick="completePatient(<?= $item['id'] ?>)">✅ Complete</button>
+                                            <button class="row-action-btn btn-miss" onclick="missPatient(<?= $item['id'] ?>)">❌ Miss</button>
                                         <?php elseif ($item['status'] === 'missed'): ?>
-                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="rejoinPatient(<?= $item['id'] ?>)">Rejoin</button>
+                                            <button class="row-action-btn btn-rejoin" onclick="rejoinPatient(<?= $item['id'] ?>)">🔄 Rejoin (+3)</button>
                                         <?php endif; ?>
-                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;" onclick="openPrescriptionModal(<?= $item['id'] ?>, '<?= esc(addslashes($item['patient_name'])) ?>', '<?= esc($item['prescription_path'] ?? '') ?>')">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                                            <span>Rx</span>
+                                        
+                                        <!-- Rx File Upload / View Button -->
+                                        <button class="row-action-btn btn-rx" onclick="openPrescriptionModal(<?= $item['id'] ?>, '<?= esc(addslashes($item['patient_name'])) ?>', '<?= esc($item['prescription_path'] ?? '') ?>')">
+                                            📄 <?= !empty($item['prescription_path']) ? 'Rx ✓' : 'Rx +' ?>
                                         </button>
                                     </div>
                                 </td>
@@ -410,6 +570,41 @@
             }
         });
     });
+
+    // Fast Clickable Preset Handlers
+    function setVisitType(type, el) {
+        document.getElementById('input-patient-type').value = type;
+        const parent = el.closest('.pill-selector-group');
+        if (parent) {
+            parent.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+        }
+        el.classList.add('active');
+    }
+
+    function setBP(val) {
+        document.getElementById('vitals-bp').value = val;
+    }
+
+    async function callNextPatientInLine() {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch(`<?= url('reception/queue/call-next') ?>`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `chamber_id=1&_token=${encodeURIComponent(csrfToken)}`
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                Toast.success('Calling next waiting patient!');
+                setTimeout(() => window.location.reload(), 800);
+            } else {
+                Toast.info(data.error || 'No waiting patients in queue today.');
+            }
+        } catch (e) {
+            console.error(e);
+            Toast.error('Failed to trigger next call.');
+        }
+    }
 
     // Helper functions for action calls
     async function callPatient(id) {

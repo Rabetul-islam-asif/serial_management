@@ -40,6 +40,7 @@ $router->get('/patient/search', [\App\Controllers\PatientController::class, 'sea
 $router->get('/reception/queue', [\App\Controllers\QueueBoardController::class, 'receptionPanel'], ['auth', 'role:admin,receptionist'], 'reception.queue');
 $router->post('/reception/queue/settings', [\App\Controllers\QueueBoardController::class, 'updateSettings'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/add', [\App\Controllers\SerialController::class, 'createSerial'], ['auth', 'role:admin,receptionist', 'csrf']);
+$router->post('/reception/queue/call-next', [\App\Controllers\SerialController::class, 'callNextPatient'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/call', [\App\Controllers\SerialController::class, 'callPatient'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/complete', [\App\Controllers\SerialController::class, 'completePatient'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/miss', [\App\Controllers\SerialController::class, 'missPatient'], ['auth', 'role:admin,receptionist', 'csrf']);

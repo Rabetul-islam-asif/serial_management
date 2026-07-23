@@ -547,4 +547,23 @@ class SerialController extends BaseController {
             $this->redirectWithError('reception/queue', 'Database error: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Call Next Patient in Line (1-Click Top Banner Action)
+     */
+    public function callNextPatient(): void {
+        $chamberId = intval($_POST['chamber_id'] ?? 1);
+        $date = date('Y-m-d');
+
+        $serialModel = new Serial();
+        $next = $serialModel->getNextWaiting($chamberId, $date);
+
+        if (!$next) {
+            $this->json(['error' => 'No waiting patients in queue today.'], 404);
+            return;
+        }
+
+        $_POST['id'] = $next['id'];
+        $this->callPatient();
+    }
 }

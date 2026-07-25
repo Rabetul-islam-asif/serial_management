@@ -25,6 +25,16 @@ abstract class BaseModel {
             try {
                 self::$db = new PDO($dsn, $config['username'], $config['password'], $config['options']);
             } catch (Exception $e) {
+                if (config('app.env') === 'production' || env('RENDER') || env('VERCEL')) {
+                    http_response_code(500);
+                    echo "<div style='font-family: system-ui, sans-serif; max-width: 600px; margin: 50px auto; padding: 24px; border: 1px solid #f87171; background: #fef2f2; border-radius: 12px; color: #991b1b;'>";
+                    echo "<h2 style='margin-top: 0;'>⚠️ Database Connection Required</h2>";
+                    echo "<p>Doctor Serial Cloud is running in production, but could not connect to MySQL at <code>" . htmlspecialchars($config['host']) . "</code>.</p>";
+                    echo "<p><strong>To fix this on Render / Cloud Host:</strong><br>Go to your host dashboard & Set Environment Variables: <code>DB_HOST</code>, <code>DB_DATABASE</code>, <code>DB_USERNAME</code>, and <code>DB_PASSWORD</code>.</p>";
+                    echo "<p style='font-size: 12px; color: #b91c1c;'>Error details: " . htmlspecialchars($e->getMessage()) . "</p>";
+                    echo "</div>";
+                    exit;
+                }
                 throw new Exception("Database connection failed: " . $e->getMessage());
             }
         }

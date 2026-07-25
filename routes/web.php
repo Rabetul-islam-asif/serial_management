@@ -58,7 +58,6 @@ $router->post('/reception/queue/rejoin', [\App\Controllers\SerialController::cla
 $router->post('/reception/queue/update-type', [\App\Controllers\SerialController::class, 'updatePatientType'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/update-payment', [\App\Controllers\SerialController::class, 'updatePaymentStatus'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/update-vitals', [\App\Controllers\SerialController::class, 'updateVitals'], ['auth', 'role:admin,receptionist', 'csrf']);
-$router->post('/reception/prescription/upload', [\App\Controllers\SerialController::class, 'uploadPrescription'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/patient/register', [\App\Controllers\PatientController::class, 'register'], ['auth', 'role:admin,receptionist', 'csrf']);
 
 // Public live board feeds

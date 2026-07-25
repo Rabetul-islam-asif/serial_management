@@ -314,12 +314,6 @@
                 </div>
             </div>
 
-            <!-- Prescription Attachment -->
-            <div class="form-group m-0">
-                <label class="form-label" style="font-weight: 600;">Attach Scanned Rx (Optional)</label>
-                <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 12px; padding: 4px 8px;">
-            </div>
-
             <div class="modal-footer p-0 mt-2" style="border: none; display: flex; gap: 8px;">
                 <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
                 <button type="submit" id="unified-submit-btn" class="btn btn-primary" style="font-size: 15px; font-weight: 700; flex: 1;">
@@ -456,10 +450,12 @@
                                             🩺 <?= (!empty($item['bp']) || !empty($item['weight']) || !empty($item['pulse'])) ? 'Vitals ✓' : 'Vitals +' ?>
                                         </button>
                                         
-                                        <!-- Rx File Upload / View Button -->
-                                        <button class="row-action-btn btn-rx" onclick="openPrescriptionModal(<?= $item['id'] ?>, '<?= esc(addslashes($item['patient_name'])) ?>', '<?= esc($item['prescription_path'] ?? '') ?>')">
-                                            📄 <?= !empty($item['prescription_path']) ? 'Rx ✓' : 'Rx +' ?>
-                                        </button>
+                                        <!-- Read-Only View Prescription Button (If Rx exists from external app/bridge) -->
+                                        <?php if (!empty($item['prescription_path'])): ?>
+                                             <a href="<?= asset($item['prescription_path']) ?>" target="_blank" class="row-action-btn btn-rx" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                                 📄 View Rx
+                                             </a>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
@@ -588,45 +584,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
                 <button type="submit" class="btn btn-primary">Hold Slot</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal Prescription Upload/Edit -->
-<div id="prescription-upload-modal" class="modal-overlay">
-    <div class="modal-container" style="max-width: 420px;">
-        <div class="modal-header">
-            <h3 class="modal-title" id="rx-modal-title">Upload Prescription</h3>
-            <button class="btn btn-ghost btn-icon" data-modal-close>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-        <form action="<?= url('reception/prescription/upload') ?>" method="POST" enctype="multipart/form-data">
-            <?= csrf_field() ?>
-            <input type="hidden" name="serial_id" id="rx-serial-id">
-            <div class="modal-body flex flex-col gap-4">
-                <p style="font-size: 13px; color: var(--text-secondary);">
-                    Manage prescription file for <span id="rx-patient-name" class="font-semibold" style="color: var(--text-primary);">Patient</span>.
-                </p>
-                
-                <!-- Existing prescription preview container -->
-                <div id="rx-exists-container" style="display: none; padding: 12px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--bg-border);">
-                    <span style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 6px;">Existing prescription uploaded:</span>
-                    <a id="rx-view-link" href="#" target="_blank" class="btn btn-secondary w-full" style="font-size: 12px; padding: 4px 8px; justify-content: center; display: inline-flex; align-items: center; gap: 4px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        <span>View Document</span>
-                    </a>
-                </div>
-
-                <div class="form-group m-0">
-                    <label class="form-label" for="prescription-upload-file">Select Prescription File (PDF/Image)</label>
-                    <input type="file" name="prescription_file" id="prescription-upload-file" class="form-input" accept=".pdf,image/*" required>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Document</button>
             </div>
         </form>
     </div>
@@ -892,30 +849,6 @@
                 await postAction('<?= url('reception/queue/rejoin') ?>', `id=${id}&rejoin_after=3&_token=${getToken()}`, 'Patient rejoined queue.');
             }
         }
-    }
-
-    function openPrescriptionModal(serialId, patientName, existingPrescPath) {
-        document.getElementById('rx-serial-id').value = serialId;
-        document.getElementById('rx-patient-name').innerText = patientName;
-        
-        const existsContainer = document.getElementById('rx-exists-container');
-        const viewLink = document.getElementById('rx-view-link');
-        const modalTitle = document.getElementById('rx-modal-title');
-        const fileInput = document.getElementById('prescription-upload-file');
-        
-        if (existingPrescPath && existingPrescPath.trim().length > 0) {
-            modalTitle.innerText = "Replace Prescription File";
-            existsContainer.style.display = "block";
-            viewLink.href = `<?= url('') ?>/` + existingPrescPath;
-            fileInput.required = false; // optional if replacing
-        } else {
-            modalTitle.innerText = "Upload Scanned Prescription";
-            existsContainer.style.display = "none";
-            viewLink.href = "#";
-            fileInput.required = true; // required if new
-        }
-        
-        Modal.open('prescription-upload-modal');
     }
 
     // Modal register patient opening

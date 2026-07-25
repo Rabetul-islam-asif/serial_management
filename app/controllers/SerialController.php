@@ -35,28 +35,6 @@ class SerialController extends BaseController {
             $notes = empty($notes) ? $vitalsStr : $vitalsStr . ' - ' . $notes;
         }
 
-        // Handle scanned prescription file uploads
-        $uploadedPath = null;
-        if (isset($_FILES['prescription_file']) && $_FILES['prescription_file']['error'] === UPLOAD_ERR_OK) {
-            $fileTmpPath = $_FILES['prescription_file']['tmp_name'];
-            $fileName = $_FILES['prescription_file']['name'];
-            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-            
-            $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
-            if (in_array($fileExtension, $allowedExtensions)) {
-                $uploadDir = dirname(__DIR__, 2) . '/public/uploads/prescriptions/';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0755, true);
-                }
-                $newFileName = 'uploaded_' . uniqid() . '.' . $fileExtension;
-                $destPath = $uploadDir . $newFileName;
-                
-                if (move_uploaded_file($fileTmpPath, $destPath)) {
-                    $uploadedPath = 'uploads/prescriptions/' . $newFileName;
-                }
-            }
-        }
-
         $serialModel = new Serial();
         $date = date('Y-m-d');
 

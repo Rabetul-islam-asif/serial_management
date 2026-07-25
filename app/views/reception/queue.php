@@ -203,7 +203,7 @@
     </div>
     
     <div class="flex gap-2">
-        <button type="button" class="btn btn-primary" onclick="focusRegistrationForm()" style="font-weight: 800; gap: 6px;">
+        <button type="button" class="btn btn-primary" onclick="Modal.open('registration-modal')" style="font-weight: 800; gap: 6px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>+ Issue Token / Reserve</span>
         </button>
@@ -263,62 +263,72 @@
     </div>
 </div>
 
-<div class="queue-layout">
-    <!-- Left Panel: Fast Clickable Register & 4-Digit Search -->
-    <div class="flex flex-col gap-6">
-        <div class="card" id="card-registration-panel">
-            <h3 style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 14px;">⚡ Patient Registration & Tokening</h3>
+<!-- ⚡ Dedicated Patient Registration & Tokening Modal Dialog -->
+<div id="registration-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 480px;">
+        <div class="modal-header">
+            <h3 class="modal-title">⚡ Issue Token / Reserve Appointment</h3>
+            <button class="btn btn-ghost btn-icon" data-modal-close>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 modal-body" id="unified-registration-form">
+            <?= csrf_field() ?>
+            <input type="hidden" name="patient_id" class="shared-patient-id" required>
+            <input type="hidden" name="chamber_id" value="1">
+            <input type="hidden" name="patient_type" id="input-patient-type" value="normal">
 
-            <!-- Unified Registration Form -->
-            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" id="unified-registration-form">
-                <?= csrf_field() ?>
-                <input type="hidden" name="patient_id" class="shared-patient-id" required>
-                <input type="hidden" name="chamber_id" value="1">
-                <input type="hidden" name="patient_type" id="input-patient-type" value="normal">
-
-                <!-- Fast 4-Digit Phone / Name Search -->
-                <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 700;">🔍 Search Patient (Phone / Name)</label>
-                    <div style="position: relative;">
-                        <input type="text" id="patient-search-input" class="form-input" placeholder="Type last 4 digits or name (e.g. 678, Kalam)..." autocomplete="off">
-                        <div id="patient-search-results" style="position: absolute; width: 100%; max-height: 220px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--bg-border); border-radius: var(--radius-sm); z-index: 50; display: none; box-shadow: var(--shadow-lg);"></div>
-                    </div>
+            <!-- Fast 4-Digit Phone / Name Search -->
+            <div class="form-group m-0">
+                <label class="form-label" style="font-weight: 700;">🔍 Search Patient (Phone / Name)</label>
+                <div style="position: relative;">
+                    <input type="text" id="patient-search-input" class="form-input" placeholder="Type last 4 digits or name (e.g. 678, Kalam)..." autocomplete="off">
+                    <div id="patient-search-results" style="position: absolute; width: 100%; max-height: 220px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--bg-border); border-radius: var(--radius-sm); z-index: 50; display: none; box-shadow: var(--shadow-lg);"></div>
                 </div>
+            </div>
 
-                <!-- Selected Patient Name & Register Modal Link -->
-                <div class="form-group m-0">
-                    <div class="flex justify-between align-center" style="margin-bottom: 6px;">
-                        <label class="form-label" style="margin: 0; font-weight: 700;">Selected Patient</label>
-                        <button type="button" class="btn btn-ghost" style="padding: 2px 8px; font-size: 12px; font-weight: 700; color: var(--primary);" onclick="openRegisterPatientModal()">
-                            + New Patient Card
-                        </button>
-                    </div>
-                    <input type="text" id="queue-patient-name" class="form-input" style="background: var(--bg-primary); font-weight: 700;" placeholder="Select patient above or click + New Patient Card" readonly required>
+            <!-- Selected Patient Name & Register Modal Link -->
+            <div class="form-group m-0">
+                <div class="flex justify-between align-center" style="margin-bottom: 6px;">
+                    <label class="form-label" style="margin: 0; font-weight: 700;">Selected Patient</label>
+                    <button type="button" class="btn btn-ghost" style="padding: 2px 8px; font-size: 12px; font-weight: 700; color: var(--primary);" onclick="openRegisterPatientModal()">
+                        + New Patient Card
+                    </button>
                 </div>
+                <input type="text" id="queue-patient-name" class="form-input" style="background: var(--bg-primary); font-weight: 700;" placeholder="Select patient above or click + New Patient Card" readonly required>
+            </div>
 
-                <!-- 📅 Token / Appointment Date Selector -->
-                <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 700;">📅 Token / Appointment Date</label>
-                    <input type="date" name="appointment_date" id="unified-date-picker" class="form-input" value="<?= date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>" required style="font-weight: 700; margin-bottom: 6px;" onchange="onDateChanged(this.value)">
-                    
-                    <div class="pill-selector-group">
-                        <span class="preset-pill active" onclick="selectRegistrationDate('<?= date('Y-m-d') ?>', this)">Today (Live)</span>
-                        <span class="preset-pill" onclick="selectRegistrationDate('<?= date('Y-m-d', strtotime('+1 day')) ?>', this)">Tomorrow (<?= date('D, d M', strtotime('+1 day')) ?>)</span>
-                        <span class="preset-pill" onclick="selectRegistrationDate('<?= date('Y-m-d', strtotime('+2 days')) ?>', this)"><?= date('D, d M', strtotime('+2 days')) ?></span>
-                    </div>
+            <!-- 📅 Token / Appointment Date Selector -->
+            <div class="form-group m-0">
+                <label class="form-label" style="font-weight: 700;">📅 Token / Appointment Date</label>
+                <input type="date" name="appointment_date" id="unified-date-picker" class="form-input" value="<?= date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>" required style="font-weight: 700; margin-bottom: 6px;" onchange="onDateChanged(this.value)">
+                
+                <div class="pill-selector-group">
+                    <span class="preset-pill active" onclick="selectRegistrationDate('<?= date('Y-m-d') ?>', this)">Today (Live)</span>
+                    <span class="preset-pill" onclick="selectRegistrationDate('<?= date('Y-m-d', strtotime('+1 day')) ?>', this)">Tomorrow (<?= date('D, d M', strtotime('+1 day')) ?>)</span>
+                    <span class="preset-pill" onclick="selectRegistrationDate('<?= date('Y-m-d', strtotime('+2 days')) ?>', this)"><?= date('D, d M', strtotime('+2 days')) ?></span>
                 </div>
+            </div>
 
-                <!-- Prescription Attachment -->
-                <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 600;">Attach Scanned Rx (Optional)</label>
-                    <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 12px; padding: 4px 8px;">
-                </div>
+            <!-- Prescription Attachment -->
+            <div class="form-group m-0">
+                <label class="form-label" style="font-weight: 600;">Attach Scanned Rx (Optional)</label>
+                <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 12px; padding: 4px 8px;">
+            </div>
 
-                <button type="submit" id="unified-submit-btn" class="btn btn-primary w-full mt-1" style="font-size: 15px; font-weight: 700; padding: 12px;">
+            <div class="modal-footer p-0 mt-2" style="border: none; display: flex; gap: 8px;">
+                <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+                <button type="submit" id="unified-submit-btn" class="btn btn-primary" style="font-size: 15px; font-weight: 700; flex: 1;">
                     ⚡ Issue Today's Live Token
                 </button>
-            </form>
-        </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="queue-layout">
+    <!-- Left Panel: Reserved Advance Bookings & Queue Timings Customizer -->
+    <div class="flex flex-col gap-6">
 
         <!-- Advance Appointments List Card -->
         <div class="card">
@@ -1050,12 +1060,11 @@
     const TODAY_DATE = "<?= date('Y-m-d') ?>";
 
     function focusRegistrationForm() {
-        const card = document.getElementById('card-registration-panel');
-        if (card) {
-            card.scrollIntoView({ behavior: 'smooth' });
+        Modal.open('registration-modal');
+        setTimeout(() => {
             const input = document.getElementById('patient-search-input');
             if (input) input.focus();
-        }
+        }, 150);
     }
 
     function selectRegistrationDate(dateStr, pillElement) {

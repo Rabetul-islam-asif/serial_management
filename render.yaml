@@ -1,0 +1,5 @@
+services:
+  - type: web
+    name: doctor-serial
+    env: docker
+    plan: free

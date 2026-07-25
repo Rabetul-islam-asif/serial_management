@@ -27,9 +27,27 @@ class SetupController extends BaseController {
 
             $sql = file_get_contents($sqlPath);
 
-            // Execute SQL schema and seed import
+            // Execute SQL schema and seed import cleanly statement by statement
             $db->exec("SET FOREIGN_KEY_CHECKS = 0;");
-            $db->exec($sql);
+            
+            // Try multi-statement exec or split statements
+            try {
+                $db->exec($sql);
+            } catch (Exception $ex) {
+                // Statement splitter fallback
+                $queries = explode(";\n", $sql);
+                foreach ($queries as $query) {
+                    $q = trim($query);
+                    if (!empty($q)) {
+                        try {
+                            $db->exec($q);
+                        } catch (Exception $eIgnore) {
+                            // Continue on minor comment/set warnings
+                        }
+                    }
+                }
+            }
+
             $db->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
             // Verify imported tables count

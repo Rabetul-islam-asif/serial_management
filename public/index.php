@@ -4,32 +4,41 @@
  * Doctor Serial Cloud — Front Controller Entry Point
  */
 
-// 1. Boot Autoloader
-if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
-    require_once dirname(__DIR__) . '/vendor/autoload.php';
-} else {
-    // PSR-4 Autoloader Fallback
-    spl_autoload_register(function ($class) {
-        $prefix = 'App\\';
-        $base_dir = dirname(__DIR__) . '/app/';
-        
-        $len = strlen($prefix);
-        if (strncmp($prefix, $class, $len) !== 0) {
+// 1. Boot Autoloader (Register SPL autoloader with Linux case fallback)
+spl_autoload_register(function ($class) {
+    $prefix = 'App\\';
+    $base_dir = dirname(__DIR__) . '/app/';
+    
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+    
+    $relative_class = substr($class, $len);
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+    
+    if (file_exists($file)) {
+        require_once $file;
+        return;
+    }
+
+    // Fallback for Linux case-sensitivity (e.g. App\Controllers -> app/controllers/)
+    $parts = explode('\\', $relative_class);
+    if (count($parts) > 1) {
+        $parts[0] = strtolower($parts[0]);
+        $fallbackFile = $base_dir . implode('/', $parts) . '.php';
+        if (file_exists($fallbackFile)) {
+            require_once $fallbackFile;
             return;
         }
-        
-        $relative_class = substr($class, $len);
-        $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
-        
-        // Convert backslashes for windows/linux compatibility
-        $file = str_replace(['\\', '/'], [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $file);
-        
-        if (file_exists($file)) {
-            require $file;
-        }
-    });
+    }
+});
 
-    // Manual helper functions loading
+if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
+    require_once dirname(__DIR__) . '/vendor/autoload.php';
+}
+
+if (file_exists(dirname(__DIR__) . '/app/helpers/functions.php')) {
     require_once dirname(__DIR__) . '/app/helpers/functions.php';
 }
 

@@ -207,6 +207,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>+ Issue Token / Reserve</span>
         </button>
+        <button type="button" class="btn btn-secondary" onclick="Modal.open('reception-settings-modal')" style="font-weight: 700; gap: 6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Queue Settings</span>
+        </button>
         <button class="btn btn-secondary" onclick="window.location.reload()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
             <span>Sync Board</span>
@@ -360,45 +364,6 @@
             <?php endif; ?>
         </div>
 
-        <!-- ⏱️ Patient Timing & Quota Customizer -->
-        <div class="card">
-            <div class="flex justify-between align-center mb-2">
-                <h3 style="font-size: 15px; font-weight: 800; color: var(--text-primary);">⏱️ Consultation Timings</h3>
-                <span class="badge badge-accent">Live EWT</span>
-            </div>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Set average consultation duration per patient type to calculate live wait times on the public board.</p>
-
-            <form action="<?= url('reception/queue/settings') ?>" method="POST" class="flex flex-col gap-3">
-                <?= csrf_field() ?>
-                <input type="hidden" name="chamber_id" value="<?= $chamber_id ?>">
-
-                <div class="form-group m-0">
-                    <label class="form-label" for="input-avg-new" style="font-weight: 700; font-size: 12px;">🩺 New Patient Time (Mins)</label>
-                    <input type="number" name="avg_consultation_time" id="input-avg-new" class="form-input" value="<?= $avg_new_time ?? 7 ?>" min="1" max="60" required style="padding: 6px 10px; font-size: 13px;">
-                </div>
-
-                <div class="form-group m-0">
-                    <label class="form-label" for="input-avg-report" style="font-weight: 700; font-size: 12px;">📄 Report Patient Time (Mins)</label>
-                    <input type="number" name="avg_report_time" id="input-avg-report" class="form-input" value="<?= $avg_report_time ?? 3 ?>" min="1" max="30" required style="padding: 6px 10px; font-size: 13px;">
-                </div>
-
-                <div class="form-group m-0">
-                    <label class="form-label" for="max-online-limit" style="font-weight: 700; font-size: 12px;">🌐 Max Online Quota</label>
-                    <input type="number" name="max_online_appointments" id="max-online-limit" class="form-input" value="<?= $max_online ?>" min="0" required style="padding: 6px 10px; font-size: 13px;">
-                </div>
-
-                <div>
-                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: block;">Speed Presets</label>
-                    <div class="pill-selector-group">
-                        <button type="button" class="preset-pill" onclick="applySpeedPreset(5, 2)">⚡ 5m Fast</button>
-                        <button type="button" class="preset-pill" onclick="applySpeedPreset(7, 3)">⚡ 7m Std</button>
-                        <button type="button" class="preset-pill" onclick="applySpeedPreset(10, 4)">⚡ 10m Deep</button>
-                        <button type="button" class="preset-pill" onclick="applySpeedPreset(15, 5)">⚡ 15m Ext</button>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-full mt-1">Save Timings & Quota</button>
-            </form>
         </div>
     </div>
 
@@ -546,6 +511,53 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
                 <button type="submit" class="btn btn-primary">Save Vitals</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ⏱️ Dedicated Reception Queue Settings Modal Dialog -->
+<div id="reception-settings-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 440px;">
+        <div class="modal-header">
+            <h3 class="modal-title">⏱️ Consultation Timings & Quota</h3>
+            <button class="btn btn-ghost btn-icon" data-modal-close>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        
+        <form action="<?= url('reception/queue/settings') ?>" method="POST" class="flex flex-col gap-4 modal-body">
+            <?= csrf_field() ?>
+            <input type="hidden" name="chamber_id" value="<?= $chamber_id ?>">
+
+            <div class="form-group m-0">
+                <label class="form-label" for="input-avg-new" style="font-weight: 700; font-size: 12px;">🩺 New Patient Time (Mins)</label>
+                <input type="number" name="avg_consultation_time" id="input-avg-new" class="form-input" value="<?= $avg_new_time ?? 7 ?>" min="1" max="60" required style="padding: 8px 12px; font-size: 14px;">
+            </div>
+
+            <div class="form-group m-0">
+                <label class="form-label" for="input-avg-report" style="font-weight: 700; font-size: 12px;">📄 Report Patient Time (Mins)</label>
+                <input type="number" name="avg_report_time" id="input-avg-report" class="form-input" value="<?= $avg_report_time ?? 3 ?>" min="1" max="30" required style="padding: 8px 12px; font-size: 14px;">
+            </div>
+
+            <div class="form-group m-0">
+                <label class="form-label" for="max-online-limit" style="font-weight: 700; font-size: 12px;">🌐 Max Online Quota</label>
+                <input type="number" name="max_online_appointments" id="max-online-limit" class="form-input" value="<?= $max_online ?>" min="0" required style="padding: 8px 12px; font-size: 14px;">
+            </div>
+
+            <div>
+                <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: block;">Speed Presets</label>
+                <div class="pill-selector-group">
+                    <button type="button" class="preset-pill" onclick="applySpeedPreset(5, 2)">⚡ 5m Fast</button>
+                    <button type="button" class="preset-pill" onclick="applySpeedPreset(7, 3)">⚡ 7m Std</button>
+                    <button type="button" class="preset-pill" onclick="applySpeedPreset(10, 4)">⚡ 10m Deep</button>
+                    <button type="button" class="preset-pill" onclick="applySpeedPreset(15, 5)">⚡ 15m Ext</button>
+                </div>
+            </div>
+
+            <div class="modal-footer p-0 mt-2" style="border: none; display: flex; gap: 8px;">
+                <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+                <button type="submit" class="btn btn-primary" style="font-weight: 700; flex: 1;">Save Timings & Quota</button>
             </div>
         </form>
     </div>

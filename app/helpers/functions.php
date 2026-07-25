@@ -50,14 +50,27 @@ if (!function_exists('config')) {
 
 if (!function_exists('url')) {
     function url(string $path = ''): string {
-        $baseUrl = config('app.url', 'http://localhost/doctor-serial');
+        $envUrl = env('APP_URL');
+        if (!empty($envUrl) && $envUrl !== 'http://localhost/doctor-serial') {
+            $baseUrl = rtrim($envUrl, '/');
+        } else {
+            $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+                       (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+            $scheme = $isHttps ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+            $baseUrl = $scheme . '://' . $host;
+        }
         return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
     }
 }
 
 if (!function_exists('asset')) {
     function asset(string $path): string {
-        return url('assets/' . ltrim($path, '/'));
+        $cleanPath = ltrim($path, '/');
+        if (str_starts_with($cleanPath, 'assets/')) {
+            return url($cleanPath);
+        }
+        return url('assets/' . $cleanPath);
     }
 }
 

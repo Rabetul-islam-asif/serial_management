@@ -203,6 +203,10 @@
     </div>
     
     <div class="flex gap-2">
+        <button type="button" class="btn btn-primary" onclick="focusRegistrationForm()" style="font-weight: 800; gap: 6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>+ Issue Token / Reserve</span>
+        </button>
         <button class="btn btn-secondary" onclick="window.location.reload()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
             <span>Sync Board</span>
@@ -260,21 +264,18 @@
 </div>
 
 <div class="queue-layout">
-    <!-- Left Panel: Fast Clickable Register & 4-Digit Search with Manual Advance Appointment Mode -->
+    <!-- Left Panel: Fast Clickable Register & 4-Digit Search -->
     <div class="flex flex-col gap-6">
-        <div class="card">
-            <!-- Mode Switcher Tabs -->
-            <div style="display: flex; gap: 4px; border-bottom: 2px solid var(--bg-border); margin-bottom: 18px; padding-bottom: 8px;">
-                <button type="button" class="preset-pill active" id="tab-btn-today" onclick="switchRegistrationMode('today', this)" style="border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;">
-                    ⚡ Today's Live Token
-                </button>
-                <button type="button" class="preset-pill" id="tab-btn-advance" onclick="switchRegistrationMode('advance', this)" style="border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;">
-                    📅 Advance Appointment
-                </button>
-            </div>
+        <div class="card" id="card-registration-panel">
+            <h3 style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 14px;">⚡ Patient Registration & Tokening</h3>
 
-            <!-- Shared Patient Search Box for Both Modes -->
-            <div class="flex flex-col gap-4">
+            <!-- Unified Registration Form -->
+            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" id="unified-registration-form">
+                <?= csrf_field() ?>
+                <input type="hidden" name="patient_id" class="shared-patient-id" required>
+                <input type="hidden" name="chamber_id" value="1">
+                <input type="hidden" name="patient_type" id="input-patient-type" value="normal">
+
                 <!-- Fast 4-Digit Phone / Name Search -->
                 <div class="form-group m-0">
                     <label class="form-label" style="font-weight: 700;">🔍 Search Patient (Phone / Name)</label>
@@ -294,16 +295,18 @@
                     </div>
                     <input type="text" id="queue-patient-name" class="form-input" style="background: var(--bg-primary); font-weight: 700;" placeholder="Select patient above or click + New Patient Card" readonly required>
                 </div>
-            </div>
 
-            <!-- ------------------------------------------------------------- -->
-            <!-- FORM 1: TODAY'S LIVE QUEUE TOKEN GENERATION -->
-            <!-- ------------------------------------------------------------- -->
-            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3 mt-3" id="form-mode-today">
-                <?= csrf_field() ?>
-                <input type="hidden" name="patient_id" class="shared-patient-id" required>
-                <input type="hidden" name="chamber_id" value="1">
-                <input type="hidden" name="patient_type" id="input-patient-type" value="normal">
+                <!-- 📅 Token / Appointment Date Selector -->
+                <div class="form-group m-0">
+                    <label class="form-label" style="font-weight: 700;">📅 Token / Appointment Date</label>
+                    <input type="date" name="appointment_date" id="unified-date-picker" class="form-input" value="<?= date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>" required style="font-weight: 700; margin-bottom: 6px;" onchange="onDateChanged(this.value)">
+                    
+                    <div class="pill-selector-group">
+                        <span class="preset-pill active" onclick="selectRegistrationDate('<?= date('Y-m-d') ?>', this)">Today (Live)</span>
+                        <span class="preset-pill" onclick="selectRegistrationDate('<?= date('Y-m-d', strtotime('+1 day')) ?>', this)">Tomorrow (<?= date('D, d M', strtotime('+1 day')) ?>)</span>
+                        <span class="preset-pill" onclick="selectRegistrationDate('<?= date('Y-m-d', strtotime('+2 days')) ?>', this)"><?= date('D, d M', strtotime('+2 days')) ?></span>
+                    </div>
+                </div>
 
                 <!-- Prescription Attachment -->
                 <div class="form-group m-0">
@@ -311,53 +314,8 @@
                     <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 12px; padding: 4px 8px;">
                 </div>
 
-                <button type="submit" class="btn btn-primary w-full mt-1" style="font-size: 15px; font-weight: 700; padding: 12px;">
-                    ⚡ Generate Today's Token
-                </button>
-            </form>
-                    Generate Today's Token & Insert
-                </button>
-            </form>
-
-            <!-- ------------------------------------------------------------- -->
-            <!-- FORM 2: MANUAL ADVANCE APPOINTMENT BOOKING (FUTURE DATE) -->
-            <!-- ------------------------------------------------------------- -->
-            <form action="<?= url('reception/appointment/book') ?>" method="POST" class="flex flex-col gap-4 mt-3" id="form-mode-advance" style="display: none;">
-                <?= csrf_field() ?>
-                <input type="hidden" name="patient_id" class="shared-patient-id" required>
-                <input type="hidden" name="chamber_id" value="1">
-
-                <!-- Target Appointment Date Selector Presets -->
-                <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 700;">📅 Target Appointment Date</label>
-                    <input type="date" name="appointment_date" id="advance-date-picker" class="form-input" value="<?= date('Y-m-d', strtotime('+1 day')) ?>" min="<?= date('Y-m-d') ?>" required style="font-weight: 700; margin-bottom: 6px;">
-                    
-                    <div class="pill-selector-group">
-                        <span class="preset-pill active" onclick="setAdvanceDate('<?= date('Y-m-d', strtotime('+1 day')) ?>', this)">Tomorrow (<?= date('D, d M', strtotime('+1 day')) ?>)</span>
-                        <span class="preset-pill" onclick="setAdvanceDate('<?= date('Y-m-d', strtotime('+2 days')) ?>', this)"><?= date('D, d M', strtotime('+2 days')) ?></span>
-                        <span class="preset-pill" onclick="setAdvanceDate('<?= date('Y-m-d', strtotime('+3 days')) ?>', this)"><?= date('D, d M', strtotime('+3 days')) ?></span>
-                    </div>
-                </div>
-
-                <!-- Appointment Category -->
-                <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 700;">Appointment Category</label>
-                    <select name="patient_type" class="form-select" required>
-                        <option value="normal">🟢 Normal Walk-in (৳1000)</option>
-                        <option value="report">🔵 Report Review</option>
-                        <option value="vip">🟣 Follow-up Visit</option>
-                        <option value="emergency">🔴 Emergency Reserved</option>
-                    </select>
-                </div>
-
-                <!-- Optional Notes -->
-                <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 600;">Advance Booking Notes / Phone Instruction</label>
-                    <input type="text" name="notes" class="form-input" placeholder="e.g. Phone appointment request, morning shift">
-                </div>
-
-                <button type="submit" class="btn btn-secondary w-full mt-2" style="font-size: 15px; font-weight: 700; padding: 12px; background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff;">
-                    📅 Reserve Advance Appointment
+                <button type="submit" id="unified-submit-btn" class="btn btn-primary w-full mt-1" style="font-size: 15px; font-weight: 700; padding: 12px;">
+                    ⚡ Issue Today's Live Token
                 </button>
             </form>
         </div>
@@ -1088,4 +1046,46 @@
             });
         }
     });
+
+    const TODAY_DATE = "<?= date('Y-m-d') ?>";
+
+    function focusRegistrationForm() {
+        const card = document.getElementById('card-registration-panel');
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth' });
+            const input = document.getElementById('patient-search-input');
+            if (input) input.focus();
+        }
+    }
+
+    function selectRegistrationDate(dateStr, pillElement) {
+        const dateInput = document.getElementById('unified-date-picker');
+        if (dateInput) {
+            dateInput.value = dateStr;
+            onDateChanged(dateStr);
+        }
+        if (pillElement && pillElement.parentElement) {
+            pillElement.parentElement.querySelectorAll('.preset-pill').forEach(el => el.classList.remove('active'));
+            pillElement.classList.add('active');
+        }
+    }
+
+    function onDateChanged(dateStr) {
+        const form = document.getElementById('unified-registration-form');
+        const submitBtn = document.getElementById('unified-submit-btn');
+        if (!form || !submitBtn) return;
+
+        if (dateStr === TODAY_DATE) {
+            form.action = "<?= url('reception/queue/add') ?>";
+            submitBtn.innerHTML = "⚡ Issue Today's Live Token";
+            submitBtn.className = "btn btn-primary w-full mt-1";
+            submitBtn.style.background = "";
+        } else {
+            form.action = "<?= url('reception/appointment/book') ?>";
+            submitBtn.innerHTML = "📅 Reserve Advance Appointment";
+            submitBtn.className = "btn btn-secondary w-full mt-1";
+            submitBtn.style.background = "linear-gradient(135deg, #0284c7, #0369a1)";
+            submitBtn.style.color = "#ffffff";
+        }
+    }
 </script>

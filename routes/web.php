@@ -10,6 +10,7 @@
 // -------------------------------------------------------------
 // Guest Routes (Authentication & Public Pages)
 // -------------------------------------------------------------
+$router->get('/setup-db', [\App\Controllers\SetupController::class, 'setupDb'], [], 'setup.db');
 $router->get('/', [\App\Controllers\PublicController::class, 'showProfile'], [], 'home');
 $router->get('/profile', [\App\Controllers\PublicController::class, 'showProfile'], [], 'doctor.profile');
 $router->get('/admin', [\App\Controllers\AuthController::class, 'showLogin'], [], 'login');

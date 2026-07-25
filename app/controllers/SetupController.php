@@ -20,35 +20,22 @@ class SetupController extends BaseController {
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
             ]);
 
-            $sqlPath = dirname(__DIR__, 2) . '/database/cpanel_full_import.sql';
-            if (!file_exists($sqlPath)) {
-                throw new Exception("SQL dump file not found at: {$sqlPath}");
-            }
+            $rawSql = file_get_contents($sqlPath);
+            $sql = "SET FOREIGN_KEY_CHECKS = 0;\n" . $rawSql . "\nSET FOREIGN_KEY_CHECKS = 1;";
 
-            $sql = file_get_contents($sqlPath);
+            // Split into individual SQL statements by semicolon + line break
+            $statements = preg_split("/;[ \t]*[\r\n]+/", $sql);
 
-            // Execute SQL schema and seed import cleanly statement by statement
-            $db->exec("SET FOREIGN_KEY_CHECKS = 0;");
-            
-            // Try multi-statement exec or split statements
-            try {
-                $db->exec($sql);
-            } catch (Exception $ex) {
-                // Statement splitter fallback
-                $queries = explode(";\n", $sql);
-                foreach ($queries as $query) {
-                    $q = trim($query);
-                    if (!empty($q)) {
-                        try {
-                            $db->exec($q);
-                        } catch (Exception $eIgnore) {
-                            // Continue on minor comment/set warnings
-                        }
+            foreach ($statements as $stmt) {
+                $q = trim($stmt);
+                if (!empty($q)) {
+                    try {
+                        $db->exec($q);
+                    } catch (Exception $eSingle) {
+                        // Ignore minor inline comment or drop table errors
                     }
                 }
             }
-
-            $db->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
             // Verify imported tables count
             $tablesStmt = $db->query("SHOW TABLES");

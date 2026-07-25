@@ -111,6 +111,66 @@
     .btn-rx { background: #0f766e; color: #fff; }
     .btn-rx:hover { background: #115e59; }
 
+    /* Inline Table Controls (Dropdown, Payment Toggle & Vitals) */
+    .type-dropdown-select {
+        background: var(--bg-surface);
+        border: 1.5px solid var(--bg-border);
+        color: var(--text-primary);
+        font-weight: 700;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.15s ease;
+    }
+    .type-dropdown-select:hover, .type-dropdown-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+    }
+    .btn-pay-toggle {
+        font-size: 11px;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        user-select: none;
+    }
+    .btn-pay-toggle.is-paid {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+    .btn-pay-toggle.is-paid:hover {
+        background: #bbf7d0;
+    }
+    .btn-pay-toggle.is-unpaid {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fca5a5;
+    }
+    .btn-pay-toggle.is-unpaid:hover {
+        background: #fca5a5;
+    }
+    .btn-vitals {
+        background: #f1f5f9;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+    }
+    .btn-vitals:hover {
+        background: #e2e8f0;
+    }
+    .btn-vitals.has-vitals {
+        background: #e0f2fe;
+        color: #0369a1;
+        border-color: #7dd3fc;
+    }
+
     /* Queue Layout Grid */
     .queue-layout {
         display: grid;
@@ -239,47 +299,11 @@
             <!-- ------------------------------------------------------------- -->
             <!-- FORM 1: TODAY'S LIVE QUEUE TOKEN GENERATION -->
             <!-- ------------------------------------------------------------- -->
-            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mt-3" id="form-mode-today">
+            <form action="<?= url('reception/queue/add') ?>" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3 mt-3" id="form-mode-today">
                 <?= csrf_field() ?>
                 <input type="hidden" name="patient_id" class="shared-patient-id" required>
                 <input type="hidden" name="chamber_id" value="1">
-
-                <!-- Clickable Appointment Category Pills -->
-                <div class="form-group m-0">
-                    <label class="form-label" style="font-weight: 700;">Visit Type / Priority</label>
-                    <input type="hidden" name="patient_type" id="input-patient-type" value="normal">
-                    <div class="pill-selector-group">
-                        <div class="preset-pill active" onclick="setVisitType('normal', this)">🟢 Normal (৳1000)</div>
-                        <div class="preset-pill" onclick="setVisitType('report', this)">🔵 Report (Priority)</div>
-                        <div class="preset-pill" onclick="setVisitType('vip', this)">🟣 Follow-up</div>
-                        <div class="preset-pill" onclick="setVisitType('emergency', this)">🔴 Emergency</div>
-                    </div>
-                </div>
-
-                <!-- Clickable Vitals Presets (BP, Weight, Pulse) -->
-                <div style="padding: 14px; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--bg-border);">
-                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Health Vitals (Optional)</div>
-                    <div class="form-group m-0 mb-3">
-                        <label class="form-label" style="font-size: 11px; font-weight: 600;">Blood Pressure</label>
-                        <input type="text" name="bp" id="vitals-bp" class="form-input" placeholder="e.g. 120/80" style="padding: 6px 10px; font-size: 13px; margin-bottom: 6px;">
-                        <div class="pill-selector-group">
-                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('120/80')">120/80</span>
-                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('130/80')">130/80</span>
-                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('140/90')">140/90</span>
-                            <span class="preset-pill" style="font-size: 11px; padding: 3px 8px;" onclick="setBP('110/70')">110/70</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="form-group m-0">
-                            <label class="form-label" style="font-size: 11px; font-weight: 600;">Weight (kg)</label>
-                            <input type="number" name="weight" id="vitals-weight" class="form-input" placeholder="e.g. 70" style="padding: 6px 10px; font-size: 13px;">
-                        </div>
-                        <div class="form-group m-0">
-                            <label class="form-label" style="font-size: 11px; font-weight: 600;">Pulse (bpm)</label>
-                            <input type="number" name="pulse" id="vitals-pulse" class="form-input" placeholder="e.g. 72" style="padding: 6px 10px; font-size: 13px;">
-                        </div>
-                    </div>
-                </div>
+                <input type="hidden" name="patient_type" id="input-patient-type" value="normal">
 
                 <!-- Prescription Attachment -->
                 <div class="form-group m-0">
@@ -287,7 +311,10 @@
                     <input type="file" name="prescription_file" class="form-input" accept=".pdf,image/*" style="font-size: 12px; padding: 4px 8px;">
                 </div>
 
-                <button type="submit" class="btn btn-primary w-full mt-2" style="font-size: 15px; font-weight: 700; padding: 12px;">
+                <button type="submit" class="btn btn-primary w-full mt-1" style="font-size: 15px; font-weight: 700; padding: 12px;">
+                    ⚡ Generate Today's Token
+                </button>
+            </form>
                     Generate Today's Token & Insert
                 </button>
             </form>
@@ -446,28 +473,33 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <?php if ($item['patient_type'] === 'report'): ?>
-                                        <span class="badge badge-accent">Report</span>
-                                    <?php elseif ($item['patient_type'] === 'vip'): ?>
-                                        <span class="badge badge-danger">VIP</span>
-                                    <?php elseif ($item['patient_type'] === 'emergency'): ?>
-                                        <span class="badge badge-pulse badge-danger">Emergency</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-primary">Normal</span>
-                                    <?php endif; ?>
+                                    <select class="type-dropdown-select" onchange="updateVisitType(<?= $item['id'] ?>, this.value)">
+                                        <option value="normal" <?= $item['patient_type'] === 'normal' ? 'selected' : '' ?>>🟢 Normal</option>
+                                        <option value="reference" <?= $item['patient_type'] === 'reference' ? 'selected' : '' ?>>👤 Reference</option>
+                                        <option value="emergency" <?= $item['patient_type'] === 'emergency' ? 'selected' : '' ?>>🔴 Emergency</option>
+                                        <option value="report" <?= $item['patient_type'] === 'report' ? 'selected' : '' ?>>🔵 Report</option>
+                                        <option value="followup" <?= $item['patient_type'] === 'followup' ? 'selected' : '' ?>>🟣 Follow-up</option>
+                                    </select>
                                 </td>
                                 <td>
-                                    <?php if ($item['status'] === 'called'): ?>
-                                        <span class="badge badge-pulse badge-warning">Serving</span>
-                                    <?php elseif ($item['status'] === 'hold'): ?>
-                                        <span class="badge badge-warning">On Hold</span>
-                                    <?php elseif ($item['status'] === 'missed'): ?>
-                                        <span class="badge badge-danger">Missed</span>
-                                    <?php elseif ($item['status'] === 'completed'): ?>
-                                        <span class="badge badge-success">Completed</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-primary" style="background: var(--bg-primary); color: var(--text-secondary);">Waiting</span>
-                                    <?php endif; ?>
+                                    <div class="flex items-center gap-1">
+                                        <?php if ($item['status'] === 'called'): ?>
+                                            <span class="badge badge-pulse badge-warning">Serving</span>
+                                        <?php elseif ($item['status'] === 'hold'): ?>
+                                            <span class="badge badge-warning">On Hold</span>
+                                        <?php elseif ($item['status'] === 'missed'): ?>
+                                            <span class="badge badge-danger">Missed</span>
+                                        <?php elseif ($item['status'] === 'completed'): ?>
+                                            <span class="badge badge-success">Completed</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-primary" style="background: var(--bg-primary); color: var(--text-secondary);">Waiting</span>
+                                        <?php endif; ?>
+
+                                        <!-- Payment Status Toggle Button -->
+                                        <button type="button" class="btn-pay-toggle <?= ($item['payment_status'] ?? 'unpaid') === 'paid' ? 'is-paid' : 'is-unpaid' ?>" onclick="togglePaymentStatus(<?= $item['id'] ?>, '<?= $item['payment_status'] ?? 'unpaid' ?>', this)">
+                                            <?= ($item['payment_status'] ?? 'unpaid') === 'paid' ? '💳 Paid' : '❌ Unpaid' ?>
+                                        </button>
+                                    </div>
                                 </td>
                                 <td style="text-align: right;">
                                     <div class="flex gap-1 justify-end flex-wrap">
@@ -485,6 +517,11 @@
                                         <?php elseif ($item['status'] === 'missed'): ?>
                                             <button class="row-action-btn btn-rejoin" onclick="rejoinPatient(<?= $item['id'] ?>)">🔄 Rejoin (+3)</button>
                                         <?php endif; ?>
+
+                                        <!-- Health Vitals Modal Button -->
+                                        <button type="button" class="row-action-btn btn-vitals <?= (!empty($item['bp']) || !empty($item['weight']) || !empty($item['pulse'])) ? 'has-vitals' : '' ?>" onclick="openVitalsModal(<?= $item['id'] ?>, '<?= esc(addslashes($item['patient_name'])) ?>', '<?= esc($item['bp'] ?? '') ?>', '<?= esc($item['weight'] ?? '') ?>', '<?= esc($item['pulse'] ?? '') ?>')">
+                                            🩺 <?= (!empty($item['bp']) || !empty($item['weight']) || !empty($item['pulse'])) ? 'Vitals ✓' : 'Vitals +' ?>
+                                        </button>
                                         
                                         <!-- Rx File Upload / View Button -->
                                         <button class="row-action-btn btn-rx" onclick="openPrescriptionModal(<?= $item['id'] ?>, '<?= esc(addslashes($item['patient_name'])) ?>', '<?= esc($item['prescription_path'] ?? '') ?>')">
@@ -498,6 +535,51 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- Modal Health Vitals Entry/Edit -->
+<div id="vitals-edit-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3 class="modal-title">🩺 Update Patient Vitals</h3>
+            <button class="btn btn-ghost btn-icon" data-modal-close>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form id="vitals-edit-form">
+            <input type="hidden" id="vitals-serial-id">
+            <div class="modal-body flex flex-col gap-4">
+                <p style="font-size: 13px; color: var(--text-secondary);">
+                    Record vital signs for <span id="vitals-patient-name" class="font-bold" style="color: var(--text-primary);">Patient</span>.
+                </p>
+                
+                <div class="form-group m-0">
+                    <label class="form-label" style="font-weight: 700;">Blood Pressure (BP)</label>
+                    <input type="text" id="modal-vitals-bp" class="form-input" placeholder="e.g. 120/80">
+                    <div class="pill-selector-group mt-2">
+                        <span class="preset-pill" onclick="document.getElementById('modal-vitals-bp').value='120/80'">120/80</span>
+                        <span class="preset-pill" onclick="document.getElementById('modal-vitals-bp').value='130/80'">130/80</span>
+                        <span class="preset-pill" onclick="document.getElementById('modal-vitals-bp').value='140/90'">140/90</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="form-group m-0">
+                        <label class="form-label" style="font-weight: 700;">Weight (kg)</label>
+                        <input type="number" id="modal-vitals-weight" class="form-input" placeholder="e.g. 70">
+                    </div>
+                    <div class="form-group m-0">
+                        <label class="form-label" style="font-weight: 700;">Pulse (bpm)</label>
+                        <input type="number" id="modal-vitals-pulse" class="form-input" placeholder="e.g. 72">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Vitals</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -910,4 +992,100 @@
         document.getElementById('input-avg-report').value = reportMins;
         Toast.info(`Timing preset selected: New = ${newMins}m, Report = ${reportMins}m. Click Save Timings to apply.`);
     }
+
+    // Update Patient Visit Type via AJAX
+    async function updateVisitType(serialId, newType) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        try {
+            const res = await fetch('<?= url('reception/queue/update-type') ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `serial_id=${serialId}&patient_type=${encodeURIComponent(newType)}&_token=${csrfToken}`
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                Toast.success(data.message);
+            } else {
+                Toast.error(data.error || 'Failed to update visit type.');
+            }
+        } catch (err) {
+            console.error(err);
+            Toast.error('Network error.');
+        }
+    }
+
+    // Toggle Payment Status (Paid / Unpaid) via AJAX
+    async function togglePaymentStatus(serialId, currentStatus, btnElement) {
+        const nextStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        try {
+            const res = await fetch('<?= url('reception/queue/update-payment') ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `serial_id=${serialId}&payment_status=${nextStatus}&_token=${csrfToken}`
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                Toast.success(data.message);
+                if (nextStatus === 'paid') {
+                    btnElement.className = 'btn-pay-toggle is-paid';
+                    btnElement.innerHTML = '💳 Paid';
+                    btnElement.setAttribute('onclick', `togglePaymentStatus(${serialId}, 'paid', this)`);
+                } else {
+                    btnElement.className = 'btn-pay-toggle is-unpaid';
+                    btnElement.innerHTML = '❌ Unpaid';
+                    btnElement.setAttribute('onclick', `togglePaymentStatus(${serialId}, 'unpaid', this)`);
+                }
+            } else {
+                Toast.error(data.error || 'Failed to update payment status.');
+            }
+        } catch (err) {
+            console.error(err);
+            Toast.error('Network error.');
+        }
+    }
+
+    // Open Vitals Modal
+    function openVitalsModal(serialId, patientName, bp, weight, pulse) {
+        document.getElementById('vitals-serial-id').value = serialId;
+        document.getElementById('vitals-patient-name').innerText = patientName;
+        document.getElementById('modal-vitals-bp').value = bp || '';
+        document.getElementById('modal-vitals-weight').value = weight || '';
+        document.getElementById('modal-vitals-pulse').value = pulse || '';
+        Modal.open('vitals-edit-modal');
+    }
+
+    // Submit Vitals Modal Form via AJAX
+    document.addEventListener('DOMContentLoaded', () => {
+        const vitalsForm = document.getElementById('vitals-edit-form');
+        if (vitalsForm) {
+            vitalsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const serialId = document.getElementById('vitals-serial-id').value;
+                const bp = document.getElementById('modal-vitals-bp').value.trim();
+                const weight = document.getElementById('modal-vitals-weight').value.trim();
+                const pulse = document.getElementById('modal-vitals-pulse').value.trim();
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                try {
+                    const res = await fetch('<?= url('reception/queue/update-vitals') ?>', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `serial_id=${serialId}&bp=${encodeURIComponent(bp)}&weight=${encodeURIComponent(weight)}&pulse=${encodeURIComponent(pulse)}&_token=${csrfToken}`
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        Toast.success(data.message);
+                        Modal.close('vitals-edit-modal');
+                        setTimeout(() => location.reload(), 500);
+                    } else {
+                        Toast.error(data.error || 'Failed to save vitals.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Toast.error('Network error.');
+                }
+            });
+        }
+    });
 </script>

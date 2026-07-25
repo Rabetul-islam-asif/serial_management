@@ -41,7 +41,7 @@ CREATE TABLE `appointments` (
   CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`chamber_id`) REFERENCES `chambers` (`id`) ON DELETE CASCADE,
   CONSTRAINT `appointments_ibfk_3` FOREIGN KEY (`booked_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,7 +50,7 @@ CREATE TABLE `appointments` (
 
 LOCK TABLES `appointments` WRITE;
 /*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
-INSERT INTO `appointments` VALUES (11,12,1,'2026-07-18','walkin','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(12,13,1,'2026-07-18','followup','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(13,14,1,'2026-07-18','vip','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(14,15,1,'2026-07-18','emergency','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(15,16,1,'2026-07-18','walkin','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(16,12,1,'2026-07-22','walkin','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(17,13,1,'2026-07-22','followup','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(18,14,1,'2026-07-22','vip','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(19,15,1,'2026-07-22','emergency','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(20,16,1,'2026-07-22','walkin','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(21,12,1,'2026-07-23','walkin','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(22,13,1,'2026-07-23','followup','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(23,14,1,'2026-07-23','vip','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(24,15,1,'2026-07-23','emergency','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(25,16,1,'2026-07-23','walkin','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10');
+INSERT INTO `appointments` VALUES (11,12,1,'2026-07-18','walkin','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(12,13,1,'2026-07-18','followup','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(13,14,1,'2026-07-18','vip','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(14,15,1,'2026-07-18','emergency','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(15,16,1,'2026-07-18','walkin','booked','Live Mock Appointment',1,'2026-07-18 16:50:10','2026-07-18 16:50:10'),(16,12,1,'2026-07-22','walkin','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(17,13,1,'2026-07-22','followup','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(18,14,1,'2026-07-22','vip','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(19,15,1,'2026-07-22','emergency','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(20,16,1,'2026-07-22','walkin','booked','Live Mock Appointment',1,'2026-07-22 21:44:56','2026-07-22 21:44:56'),(21,12,1,'2026-07-23','walkin','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(22,13,1,'2026-07-23','followup','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(23,14,1,'2026-07-23','vip','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(24,15,1,'2026-07-23','emergency','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(25,16,1,'2026-07-23','walkin','booked','Live Mock Appointment',1,'2026-07-23 20:48:10','2026-07-23 20:48:10'),(26,18,1,'2026-07-25','','booked','',2,'2026-07-24 23:15:17','2026-07-24 23:15:17');
 /*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -506,7 +506,7 @@ CREATE TABLE `patients` (
   UNIQUE KEY `phone` (`phone`),
   KEY `idx_patients_phone` (`phone`),
   KEY `idx_patients_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -515,7 +515,7 @@ CREATE TABLE `patients` (
 
 LOCK TABLES `patients` WRITE;
 /*!40000 ALTER TABLE `patients` DISABLE KEYS */;
-INSERT INTO `patients` VALUES (1,'Abdur Rahman','01711112222','abdur.rahman@example.com',45,'male','A+','Mirpur-12, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(2,'Fatema Begum','01822223333','fatema.begum@example.com',32,'female','O+','Dhanmondi, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(3,'Kamil Ahmed','01933334444','kamil.ahmed@example.com',60,'male','B+','Uttara Sector-4, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(4,'Nusrat Jahan','01544445555','nusrat.jahan@example.com',28,'female','AB+','Mohammadpur, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(5,'Zahid Hasan','01655556666','zahid.hasan@example.com',52,'male','O-','Banani, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(6,'Sultana Razia','01766667777','sultana.razia@example.com',67,'female','B-','Tejgaon, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(7,'Tariqul Islam','01877778888','tariqul.islam@example.com',38,'male','A-','Gulsan-2, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(8,'Jahanara Alam','01988889999','jahanara.alam@example.com',25,'female','O+','Lalbagh, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(9,'Rashedul Bari','01599990000','rashedul.bari@example.com',41,'male','AB-','Badda, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(10,'Meherun Nesa','01700001111','meherun.nesa@example.com',59,'female','B+','Khilgaon, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(12,'Abul Kalam','01711111111',NULL,52,'male','O+','Mirpur, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(13,'Rahima Begum','01722222222',NULL,45,'female','A+','Dhanmondi, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(14,'Kamal Hossain','01733333333',NULL,29,'male','B+','Uttara, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(15,'Salma Akter','01744444444',NULL,34,'female','AB+','Gulshan, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(16,'Karim Box','01755555555',NULL,62,'male','O-','Badda, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(17,'Demo Patient','01712345678',NULL,30,'male','B+','Dhaka, Bangladesh',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL);
+INSERT INTO `patients` VALUES (1,'Abdur Rahman','01711112222','abdur.rahman@example.com',45,'male','A+','Mirpur-12, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(2,'Fatema Begum','01822223333','fatema.begum@example.com',32,'female','O+','Dhanmondi, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(3,'Kamil Ahmed','01933334444','kamil.ahmed@example.com',60,'male','B+','Uttara Sector-4, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(4,'Nusrat Jahan','01544445555','nusrat.jahan@example.com',28,'female','AB+','Mohammadpur, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(5,'Zahid Hasan','01655556666','zahid.hasan@example.com',52,'male','O-','Banani, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(6,'Sultana Razia','01766667777','sultana.razia@example.com',67,'female','B-','Tejgaon, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(7,'Tariqul Islam','01877778888','tariqul.islam@example.com',38,'male','A-','Gulsan-2, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(8,'Jahanara Alam','01988889999','jahanara.alam@example.com',25,'female','O+','Lalbagh, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(9,'Rashedul Bari','01599990000','rashedul.bari@example.com',41,'male','AB-','Badda, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(10,'Meherun Nesa','01700001111','meherun.nesa@example.com',59,'female','B+','Khilgaon, Dhaka',NULL,'2026-07-18 14:36:08','2026-07-18 14:36:08',NULL),(12,'Abul Kalam','01711111111',NULL,52,'male','O+','Mirpur, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(13,'Rahima Begum','01722222222',NULL,45,'female','A+','Dhanmondi, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(14,'Kamal Hossain','01733333333',NULL,29,'male','B+','Uttara, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(15,'Salma Akter','01744444444',NULL,34,'female','AB+','Gulshan, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(16,'Karim Box','01755555555',NULL,62,'male','O-','Badda, Dhaka',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(17,'Demo Patient','01712345678',NULL,30,'male','B+','Dhaka, Bangladesh',NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10',NULL),(18,'Asif_Rabetul','01885356821',NULL,34,'female','O+','dhaka',NULL,'2026-07-24 23:14:22','2026-07-24 23:14:22',NULL);
 /*!40000 ALTER TABLE `patients` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -671,7 +671,7 @@ CREATE TABLE `queue_settings` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_chamber_key` (`chamber_id`,`setting_key`),
   CONSTRAINT `queue_settings_ibfk_1` FOREIGN KEY (`chamber_id`) REFERENCES `chambers` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -680,7 +680,7 @@ CREATE TABLE `queue_settings` (
 
 LOCK TABLES `queue_settings` WRITE;
 /*!40000 ALTER TABLE `queue_settings` DISABLE KEYS */;
-INSERT INTO `queue_settings` VALUES (1,1,'ratio_rules','{\"normal\": 3, \"report\": 2, \"vip\": 1}','Ratio mapping of normal vs report vs vip patients','2026-07-17 00:43:20','2026-07-17 00:43:20'),(2,1,'rejoin_gap','3','Number of patients to bypass before a missed patient rejoins the queue','2026-07-17 00:43:20','2026-07-17 00:43:20'),(3,1,'avg_consultation_time','10','Estimated consultation duration in minutes per patient','2026-07-17 00:43:20','2026-07-17 00:43:20'),(4,1,'max_online_appointments','20','Maximum acceptable online appointments limit','2026-07-18 04:51:09','2026-07-18 04:51:09');
+INSERT INTO `queue_settings` VALUES (1,1,'ratio_rules','{\"normal\": 3, \"report\": 2, \"vip\": 1}','Ratio mapping of normal vs report vs vip patients','2026-07-17 00:43:20','2026-07-17 00:43:20'),(2,1,'rejoin_gap','3','Number of patients to bypass before a missed patient rejoins the queue','2026-07-17 00:43:20','2026-07-17 00:43:20'),(3,1,'avg_consultation_time','10','Estimated consultation duration in minutes per patient','2026-07-17 00:43:20','2026-07-17 00:43:20'),(4,1,'max_online_appointments','20','Maximum acceptable online appointments limit','2026-07-18 04:51:09','2026-07-18 04:51:09'),(5,1,'avg_report_time','3','Avg review time for report patients in mins','2026-07-24 23:09:12','2026-07-24 23:09:12');
 /*!40000 ALTER TABLE `queue_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -725,7 +725,8 @@ CREATE TABLE `serials` (
   `serial_date` date NOT NULL,
   `serial_number` int(11) NOT NULL,
   `queue_position` int(11) NOT NULL,
-  `patient_type` enum('normal','report','vip','emergency','followup','senior','pregnant','custom') NOT NULL DEFAULT 'normal',
+  `patient_type` enum('normal','report','vip','emergency','followup','senior','pregnant','reference','custom') NOT NULL DEFAULT 'normal',
+  `payment_status` enum('paid','unpaid') NOT NULL DEFAULT 'unpaid',
   `priority_level` int(11) DEFAULT 0,
   `status` enum('waiting','called','in_consultation','hold','skipped','missed','completed','cancelled','no_show') NOT NULL DEFAULT 'waiting',
   `called_at` datetime DEFAULT NULL,
@@ -737,6 +738,9 @@ CREATE TABLE `serials` (
   `is_rejoined` tinyint(1) DEFAULT 0,
   `token_number` varchar(20) NOT NULL,
   `notes` text DEFAULT NULL,
+  `bp` varchar(20) DEFAULT NULL,
+  `weight` varchar(20) DEFAULT NULL,
+  `pulse` varchar(20) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -746,7 +750,7 @@ CREATE TABLE `serials` (
   KEY `idx_serial_status` (`status`),
   CONSTRAINT `serials_ibfk_1` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
   CONSTRAINT `serials_ibfk_2` FOREIGN KEY (`chamber_id`) REFERENCES `chambers` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -755,7 +759,7 @@ CREATE TABLE `serials` (
 
 LOCK TABLES `serials` WRITE;
 /*!40000 ALTER TABLE `serials` DISABLE KEYS */;
-INSERT INTO `serials` VALUES (11,11,1,'2026-07-24',1,2,'normal',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718001','Seeded live queue token','2026-07-18 12:50:10','2026-07-18 12:50:10'),(12,12,1,'2026-07-24',2,4,'report',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718002','Seeded live queue token','2026-07-18 12:50:10','2026-07-18 12:50:10'),(13,13,1,'2026-07-24',3,5,'vip',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718003','Seeded live queue token','2026-07-18 12:50:10','2026-07-18 12:50:10'),(14,14,1,'2026-07-24',4,1,'emergency',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718004','Seeded live queue token','2026-07-18 12:50:10','2026-07-18 12:50:10'),(15,15,1,'2026-07-24',5,3,'normal',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718005','Seeded live queue token','2026-07-18 12:50:10','2026-07-18 12:50:10'),(16,16,1,'2026-07-24',1,2,'normal',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722001','Seeded live queue token','2026-07-22 17:44:56','2026-07-22 17:44:56'),(17,17,1,'2026-07-24',2,4,'report',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722002','Seeded live queue token','2026-07-22 17:44:56','2026-07-22 17:44:56'),(18,18,1,'2026-07-24',3,5,'vip',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722003','Seeded live queue token','2026-07-22 17:44:56','2026-07-22 17:44:56'),(19,19,1,'2026-07-24',4,1,'emergency',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722004','Seeded live queue token','2026-07-22 17:44:56','2026-07-22 17:44:56'),(20,20,1,'2026-07-24',5,3,'normal',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722005','Seeded live queue token','2026-07-22 17:44:56','2026-07-22 17:44:56'),(21,21,1,'2026-07-24',1,1,'normal',0,'called','2026-07-23 21:01:40',NULL,NULL,NULL,NULL,NULL,0,'TK-260723001','Seeded live queue token','2026-07-23 16:48:10','2026-07-23 21:01:40'),(22,22,1,'2026-07-24',2,4,'report',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260723002','Seeded live queue token','2026-07-23 16:48:10','2026-07-23 16:48:10'),(23,23,1,'2026-07-24',3,5,'vip',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260723003','Seeded live queue token','2026-07-23 16:48:10','2026-07-23 16:48:10'),(24,24,1,'2026-07-24',4,2,'emergency',0,'waiting','2026-07-23 21:01:37',NULL,NULL,NULL,NULL,NULL,0,'TK-260723004','Seeded live queue token','2026-07-23 16:48:10','2026-07-23 21:01:37'),(25,25,1,'2026-07-24',5,3,'normal',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260723005','Seeded live queue token','2026-07-23 16:48:10','2026-07-23 16:48:10');
+INSERT INTO `serials` VALUES (11,11,1,'2026-07-24',1,5,'normal','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718001','Seeded live queue token',NULL,NULL,NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10'),(12,12,1,'2026-07-24',2,8,'report','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718002','Seeded live queue token',NULL,NULL,NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10'),(13,13,1,'2026-07-24',3,10,'vip','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718003','Seeded live queue token',NULL,NULL,NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10'),(14,14,1,'2026-07-24',4,2,'emergency','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718004','Seeded live queue token',NULL,NULL,NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10'),(15,15,1,'2026-07-24',5,7,'normal','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260718005','Seeded live queue token',NULL,NULL,NULL,'2026-07-18 12:50:10','2026-07-18 12:50:10'),(16,16,1,'2026-07-24',1,6,'normal','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722001','Seeded live queue token',NULL,NULL,NULL,'2026-07-22 17:44:56','2026-07-22 17:44:56'),(17,17,1,'2026-07-24',2,9,'report','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722002','Seeded live queue token',NULL,NULL,NULL,'2026-07-22 17:44:56','2026-07-22 17:44:56'),(18,18,1,'2026-07-24',3,14,'vip','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722003','Seeded live queue token',NULL,NULL,NULL,'2026-07-22 17:44:56','2026-07-22 17:44:56'),(19,19,1,'2026-07-24',4,3,'emergency','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722004','Seeded live queue token',NULL,NULL,NULL,'2026-07-22 17:44:56','2026-07-22 17:44:56'),(20,20,1,'2026-07-24',5,11,'normal','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260722005','Seeded live queue token',NULL,NULL,NULL,'2026-07-22 17:44:56','2026-07-22 17:44:56'),(21,21,1,'2026-07-24',1,1,'normal','unpaid',0,'called','2026-07-24 23:21:59',NULL,NULL,NULL,NULL,NULL,0,'TK-260723001','Seeded live queue token',NULL,NULL,NULL,'2026-07-23 16:48:10','2026-07-24 23:21:59'),(22,22,1,'2026-07-24',2,13,'report','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260723002','Seeded live queue token',NULL,NULL,NULL,'2026-07-23 16:48:10','2026-07-23 16:48:10'),(23,23,1,'2026-07-24',3,15,'vip','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260723003','Seeded live queue token',NULL,NULL,NULL,'2026-07-23 16:48:10','2026-07-23 16:48:10'),(24,24,1,'2026-07-24',4,4,'emergency','unpaid',0,'waiting','2026-07-23 21:01:37',NULL,NULL,NULL,NULL,NULL,0,'TK-260723004','Seeded live queue token',NULL,NULL,NULL,'2026-07-23 16:48:10','2026-07-23 21:01:37'),(25,25,1,'2026-07-24',5,12,'normal','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260723005','Seeded live queue token',NULL,NULL,NULL,'2026-07-23 16:48:10','2026-07-23 16:48:10'),(26,26,1,'2026-07-25',1,1,'normal','unpaid',0,'waiting',NULL,NULL,NULL,NULL,NULL,NULL,0,'TK-260725001','Manual Reception Advance Booking: ',NULL,NULL,NULL,'2026-07-24 23:15:17','2026-07-24 23:15:17');
 /*!40000 ALTER TABLE `serials` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -851,7 +855,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Dr. Sarah Rahman','admin@doctorserial.cloud','01712345678','$2y$10$upVnHoqNVMXpOjJZSMpFBOtCAPRQuZ69FGdvdeKV/H6IjQyzq4aae','admin','sarah-avatar.png',1,NULL,'2026-07-23 21:43:05','2026-07-17 00:43:20','2026-07-23 21:43:05',NULL),(2,'Rahim Uddin','receptionist@doctorserial.cloud','01812345678','$2y$10$upVnHoqNVMXpOjJZSMpFBOtCAPRQuZ69FGdvdeKV/H6IjQyzq4aae','receptionist','rahim-avatar.png',1,NULL,'2026-07-23 21:00:19','2026-07-17 00:43:20','2026-07-23 21:00:19',NULL);
+INSERT INTO `users` VALUES (1,'Dr. Sarah Rahman','admin@doctorserial.cloud','01712345678','$2y$10$upVnHoqNVMXpOjJZSMpFBOtCAPRQuZ69FGdvdeKV/H6IjQyzq4aae','admin','sarah-avatar.png',1,NULL,'2026-07-23 21:43:05','2026-07-17 00:43:20','2026-07-23 21:43:05',NULL),(2,'Rahim Uddin','receptionist@doctorserial.cloud','01812345678','$2y$10$upVnHoqNVMXpOjJZSMpFBOtCAPRQuZ69FGdvdeKV/H6IjQyzq4aae','receptionist','rahim-avatar.png',1,NULL,'2026-07-25 16:28:14','2026-07-17 00:43:20','2026-07-25 16:28:14',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -905,4 +909,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-24 12:30:12
+-- Dump completed on 2026-07-25 16:40:23

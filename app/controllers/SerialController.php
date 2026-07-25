@@ -686,4 +686,77 @@ class SerialController extends BaseController {
             $this->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Update Patient Type / Category via AJAX (normal, reference, emergency, report, followup)
+     */
+    public function updatePatientType(): void {
+        $serialId = intval($_POST['serial_id'] ?? 0);
+        $type = trim($_POST['patient_type'] ?? 'normal');
+
+        $allowedTypes = ['normal', 'reference', 'emergency', 'report', 'followup', 'vip'];
+        if ($serialId <= 0 || !in_array($type, $allowedTypes)) {
+            $this->json(['error' => 'Invalid parameters'], 400);
+        }
+
+        $serialModel = new Serial();
+        $db = $serialModel->getDb();
+        $stmt = $db->prepare("UPDATE serials SET patient_type = :type, updated_at = NOW() WHERE id = :id");
+        $stmt->execute(['type' => $type, 'id' => $serialId]);
+
+        $this->json(['success' => true, 'message' => 'Patient visit type updated to ' . ucfirst($type), 'patient_type' => $type]);
+    }
+
+    /**
+     * Toggle / Update Payment Status via AJAX (paid, unpaid)
+     */
+    public function updatePaymentStatus(): void {
+        $serialId = intval($_POST['serial_id'] ?? 0);
+        $status = trim($_POST['payment_status'] ?? 'unpaid');
+
+        if ($serialId <= 0 || !in_array($status, ['paid', 'unpaid'])) {
+            $this->json(['error' => 'Invalid parameters'], 400);
+        }
+
+        $serialModel = new Serial();
+        $db = $serialModel->getDb();
+        $stmt = $db->prepare("UPDATE serials SET payment_status = :status, updated_at = NOW() WHERE id = :id");
+        $stmt->execute(['status' => $status, 'id' => $serialId]);
+
+        $this->json(['success' => true, 'message' => 'Payment status updated to ' . strtoupper($status), 'payment_status' => $status]);
+    }
+
+    /**
+     * Update Health Vitals via AJAX (BP, Weight, Pulse)
+     */
+    public function updateVitals(): void {
+        $serialId = intval($_POST['serial_id'] ?? 0);
+        $bp = trim($_POST['bp'] ?? '');
+        $weight = trim($_POST['weight'] ?? '');
+        $pulse = trim($_POST['pulse'] ?? '');
+
+        if ($serialId <= 0) {
+            $this->json(['error' => 'Invalid Serial ID'], 400);
+        }
+
+        $serialModel = new Serial();
+        $db = $serialModel->getDb();
+        $stmt = $db->prepare("UPDATE serials SET bp = :bp, weight = :weight, pulse = :pulse, updated_at = NOW() WHERE id = :id");
+        $stmt->execute([
+            'bp' => $bp,
+            'weight' => $weight,
+            'pulse' => $pulse,
+            'id' => $serialId
+        ]);
+
+        $this->json([
+            'success' => true, 
+            'message' => 'Health vitals updated successfully',
+            'vitals' => [
+                'bp' => $bp,
+                'weight' => $weight,
+                'pulse' => $pulse
+            ]
+        ]);
+    }
 }

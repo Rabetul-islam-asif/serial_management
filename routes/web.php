@@ -55,6 +55,9 @@ $router->post('/reception/queue/complete', [\App\Controllers\SerialController::c
 $router->post('/reception/queue/miss', [\App\Controllers\SerialController::class, 'missPatient'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/hold', [\App\Controllers\SerialController::class, 'holdPatient'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/queue/rejoin', [\App\Controllers\SerialController::class, 'rejoinPatient'], ['auth', 'role:admin,receptionist', 'csrf']);
+$router->post('/reception/queue/update-type', [\App\Controllers\SerialController::class, 'updatePatientType'], ['auth', 'role:admin,receptionist', 'csrf']);
+$router->post('/reception/queue/update-payment', [\App\Controllers\SerialController::class, 'updatePaymentStatus'], ['auth', 'role:admin,receptionist', 'csrf']);
+$router->post('/reception/queue/update-vitals', [\App\Controllers\SerialController::class, 'updateVitals'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/prescription/upload', [\App\Controllers\SerialController::class, 'uploadPrescription'], ['auth', 'role:admin,receptionist', 'csrf']);
 $router->post('/reception/patient/register', [\App\Controllers\PatientController::class, 'register'], ['auth', 'role:admin,receptionist', 'csrf']);
 

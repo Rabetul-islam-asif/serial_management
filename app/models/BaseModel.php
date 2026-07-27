@@ -20,7 +20,17 @@ abstract class BaseModel {
                 throw new Exception("Database configuration not found.");
             }
             
-            $dsn = "mysql:host={$config['host']};port={$config['port']};dbname={$config['database']};charset={$config['charset']}";
+            $host = $config['host'];
+            $port = $config['port'] ?? 3306;
+            if (strpos($host, ':') !== false) {
+                [$parsedHost, $parsedPort] = explode(':', $host, 2);
+                $host = $parsedHost;
+                if (!empty($parsedPort)) {
+                    $port = $parsedPort;
+                }
+            }
+            
+            $dsn = "mysql:host={$host};port={$port};dbname={$config['database']};charset={$config['charset']}";
             
             try {
                 self::$db = new PDO($dsn, $config['username'], $config['password'], $config['options']);

@@ -30,6 +30,11 @@ class SetupController extends BaseController {
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
             ]);
 
+            $sqlPath = dirname(__DIR__, 2) . '/database/cpanel_full_import.sql';
+            if (!file_exists($sqlPath)) {
+                throw new Exception("SQL dump file not found at: {$sqlPath}");
+            }
+
             $rawSql = file_get_contents($sqlPath);
             $sql = "SET FOREIGN_KEY_CHECKS = 0;\n" . $rawSql . "\nSET FOREIGN_KEY_CHECKS = 1;";
 

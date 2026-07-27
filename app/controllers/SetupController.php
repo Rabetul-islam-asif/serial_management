@@ -84,18 +84,32 @@ class SetupController extends BaseController {
 
         } catch (Exception $e) {
             http_response_code(500);
+            $errMsg = $e->getMessage();
+            $isDnsError = strpos($errMsg, 'getaddrinfo') !== false || strpos($errMsg, 'Name or service not known') !== false;
+
             echo "<!DOCTYPE html><html><head><title>Database Setup Failed</title>";
             echo "<style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}";
-            echo ".card{background:#1e293b;border:1px solid #991b1b;border-radius:16px;padding:32px;max-width:540px;width:90%;}";
+            echo ".card{background:#1e293b;border:1px solid #991b1b;border-radius:16px;padding:32px;max-width:580px;width:90%;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);}";
             echo "h1{font-size:22px;color:#f87171;margin-top:0;}";
             echo "p{color:#cbd5e1;font-size:14px;line-height:1.6;}";
-            echo "code{background:#0f172a;padding:4px 8px;border-radius:4px;color:#38bdf8;}";
+            echo "code{background:#0f172a;padding:4px 8px;border-radius:4px;color:#38bdf8;word-break:break-all;}";
+            echo ".hint{background:#1e1b4b;border:1px solid #4338ca;padding:12px 16px;border-radius:8px;font-size:13px;color:#c7d2fe;margin-top:12px;}";
             echo "</style></head><body>";
             echo "<div class='card'>";
             echo "<h1>⚠️ Database Setup Failed</h1>";
-            echo "<p>Could not connect or run SQL script on database at <code>" . htmlspecialchars($config['host']) . "</code>.</p>";
-            echo "<p><strong>Error Message:</strong><br><code>" . htmlspecialchars($e->getMessage()) . "</code></p>";
-            echo "<p><strong>Troubleshooting:</strong><br>1. Check Environment Variables on Render (DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD).<br>2. Ensure database name exists in your cloud MySQL instance.</p>";
+            echo "<p>Could not connect or run SQL script on database host <code>" . htmlspecialchars($config['host']) . "</code>.</p>";
+            echo "<p><strong>Error Message:</strong><br><code>" . htmlspecialchars($errMsg) . "</code></p>";
+            
+            if ($isDnsError) {
+                echo "<div class='hint'>";
+                echo "<strong>🔍 DNS / Hostname Diagnosis:</strong><br>";
+                echo "1. Verify <code>DB_HOST</code> in Render match your Aiven <strong>Host</strong> value exactly.<br>";
+                echo "2. Check your Aiven Dashboard: Ensure your MySQL service status is <strong>Running</strong> (green) and not restarting/stopped.<br>";
+                echo "3. Remove any extra letters or characters from the hostname.";
+                echo "</div>";
+            } else {
+                echo "<p><strong>Troubleshooting:</strong><br>1. Check Environment Variables on Render (DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD).<br>2. Ensure database name exists in your cloud MySQL instance.</p>";
+            }
             echo "</div>";
             echo "</body></html>";
             exit;

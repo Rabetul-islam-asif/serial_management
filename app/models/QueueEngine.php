@@ -44,6 +44,7 @@ class QueueEngine extends BaseModel {
 
         // 3. Separate the serials into distinct pools
         $emergencyPool = [];
+        $rolloverPool = [];  // Unserved rolled-over patients from previous day get top priority
         $vipPool = [];
         $reportPool = [];
         $normalPool = [];
@@ -64,6 +65,8 @@ class QueueEngine extends BaseModel {
         foreach ($orderableSerials as $s) {
             if ($s['patient_type'] === 'emergency') {
                 $emergencyPool[] = $s;
+            } elseif (!empty($s['is_rollover'])) {
+                $rolloverPool[] = $s;
             } elseif ($s['is_rejoined']) {
                 $rejoinPool[] = $s;
             } elseif ($s['patient_type'] === 'vip') {
@@ -83,12 +86,17 @@ class QueueEngine extends BaseModel {
             $newSequence[] = $servingSerial;
         }
 
-        // 4b. Emergency patients always go next
+        // 4b. Emergency patients always go next (immediately at the top of waiting queue)
         foreach ($emergencyPool as $emp) {
             $newSequence[] = $emp;
         }
 
-        // 4c. Process standard queue pools with ratios
+        // 4c. Rolled-over unserved patients from previous days get 1st priority after emergency
+        foreach ($rolloverPool as $rp) {
+            $newSequence[] = $rp;
+        }
+
+        // 4d. Process standard queue pools with ratios
         $ruleIndex = 0;
         $ruleCounters = array_fill(0, count($rules), 0);
         
@@ -144,9 +152,8 @@ class QueueEngine extends BaseModel {
             }
         }
 
-        // 4d. Handle Rejoining Patients
+        // 4e. Handle Rejoining Patients
         // A rejoin patient is placed at a specific relative gap, e.g. after N patients
-        // we sort rejoin pool by original position and insert them.
         foreach ($rejoinPool as $rp) {
             $gap = $rp['missed_rejoin_after'] ?? 3;
             // Insert at index = current serving index + gap + 1
@@ -159,16 +166,16 @@ class QueueEngine extends BaseModel {
             }
         }
 
-        // 5. Save the new sequence positions to database
+        // 5. Save the new sequence positions AND sequential serial numbers to database
         $db = $this->getDb();
         $db->beginTransaction();
         
         try {
             $pos = 1;
             foreach ($newSequence as $item) {
-                $sql = "UPDATE serials SET queue_position = :pos WHERE id = :id";
+                $sql = "UPDATE serials SET queue_position = :pos, serial_number = :sn WHERE id = :id";
                 $stmt = $db->prepare($sql);
-                $stmt->execute(['pos' => $pos, 'id' => $item['id']]);
+                $stmt->execute(['pos' => $pos, 'sn' => $pos, 'id' => $item['id']]);
                 $pos++;
             }
             $db->commit();

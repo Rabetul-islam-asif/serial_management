@@ -1,6 +1,6 @@
 <?php $title = 'Patient Login'; ?>
 
-<form action="<?= url('patient/otp/send') ?>" method="POST" class="flex flex-col gap-4" id="patient-login-form">
+<form action="<?= url('patient/login') ?>" method="POST" class="flex flex-col gap-4" id="patient-login-form">
     <?= csrf_field() ?>
 
     <div class="text-center mb-2" style="background: var(--accent-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(16,165,172,0.12);">
@@ -16,9 +16,17 @@
             <input type="tel" name="phone" id="phone" class="form-input" placeholder="17XXXXXXXX" required style="padding-left: 60px;" autocomplete="tel" autofocus>
         </div>
     </div>
+    
+    <div class="form-group m-0">
+        <div class="flex justify-between items-center mb-1">
+            <label for="password" class="form-label mb-0">Password</label>
+            <a href="<?= url('patient/forgot-password') ?>" style="font-size: 12px; color: var(--accent); font-weight: 500;">Forgot Password?</a>
+        </div>
+        <input type="password" name="password" id="password" class="form-input" required autocomplete="current-password">
+    </div>
 
     <button type="submit" class="btn btn-primary w-full mt-2" style="background: var(--accent); border-color: var(--accent);">
-        <span>Send OTP Code</span>
+        <span>Sign In</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
     </button>
 
@@ -43,6 +51,7 @@
 <script>
 function demoPatientLogin() {
     document.getElementById('phone').value = '01712345678';
+    document.getElementById('password').value = '123456';
     document.getElementById('patient-login-form').submit();
 }
 </script>

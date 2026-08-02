@@ -23,8 +23,7 @@ class DashboardController extends BaseController {
                 break;
                 
             case 'patient':
-                $patientPortal = new \App\Controllers\PatientPortalController();
-                $patientPortal->index();
+                $this->redirect('patient/dashboard');
                 break;
                 
             default:

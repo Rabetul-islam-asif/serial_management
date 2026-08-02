@@ -36,7 +36,8 @@ class QueueBoardController extends BaseController {
             'next' => $next,
             'doctor' => $doctor,
             'chamber' => $chamber,
-            'chamber_id' => $chamberId
+            'chamber_id' => $chamberId,
+            'hideFooter' => true
         ], 'public');
     }
 

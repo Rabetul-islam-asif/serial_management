@@ -19,9 +19,9 @@ $router->get('/logout', [\App\Controllers\AuthController::class, 'logout'], [], 
 
 // Patient OTP Guest routes
 $router->get('/patient/login', [\App\Controllers\AuthController::class, 'showPatientLogin'], [], 'patient.login');
-$router->post('/patient/otp/send', [\App\Controllers\AuthController::class, 'sendOtp'], ['csrf', 'rate_limit:otp']);
-$router->get('/patient/otp/verify', [\App\Controllers\AuthController::class, 'showVerifyOtp'], [], 'patient.otp.verify');
-$router->post('/patient/otp/verify', [\App\Controllers\AuthController::class, 'verifyOtp'], ['csrf']);
+$router->post('/patient/login', [\App\Controllers\AuthController::class, 'patientLogin'], ['csrf', 'rate_limit:login']);
+$router->get('/patient/forgot-password', [\App\Controllers\AuthController::class, 'showForgotPassword'], [], 'patient.forgot');
+$router->post('/patient/forgot-password', [\App\Controllers\AuthController::class, 'resetPassword'], ['csrf', 'rate_limit:reset']);
 $router->post('/appointment/book', [\App\Controllers\SerialController::class, 'bookOnlineAppointment'], ['csrf']);
 
 // -------------------------------------------------------------
@@ -75,6 +75,7 @@ $router->get('/doctor/prescription/print', [\App\Controllers\PrescriptionControl
 
 // Patient Portal dashboard route
 $router->get('/patient/dashboard', [\App\Controllers\PatientPortalController::class, 'index'], ['auth', 'role:patient'], 'patient.dashboard');
+$router->get('/patient/member', [\App\Controllers\PatientPortalController::class, 'memberDetail'], ['auth', 'role:patient'], 'patient.member');
 
 // Admin panel management routes (Phase 5)
 $router->get('/admin/receptionists', [\App\Controllers\AdminController::class, 'receptionists'], ['auth', 'role:admin'], 'admin.receptionists');

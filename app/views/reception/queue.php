@@ -130,32 +130,38 @@
     }
     .btn-pay-toggle {
         font-size: 11px;
-        font-weight: 800;
-        padding: 4px 10px;
-        border-radius: 6px;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 20px;
         border: none;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
         user-select: none;
+        letter-spacing: 0.02em;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
     .btn-pay-toggle.is-paid {
-        background: #dcfce7;
-        color: #15803d;
-        border: 1px solid #bbf7d0;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
     }
     .btn-pay-toggle.is-paid:hover {
-        background: #bbf7d0;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        background: linear-gradient(135deg, #34d399, #059669);
     }
     .btn-pay-toggle.is-unpaid {
-        background: #fee2e2;
-        color: #b91c1c;
-        border: 1px solid #fca5a5;
+        background: linear-gradient(135deg, #f43f5e, #e11d48);
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(225, 29, 72, 0.25);
     }
     .btn-pay-toggle.is-unpaid:hover {
-        background: #fca5a5;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);
+        background: linear-gradient(135deg, #fb7185, #e11d48);
     }
     .btn-vitals {
         background: #f1f5f9;
@@ -376,7 +382,8 @@
                 <thead>
                     <tr>
                         <th style="width: 10%;">Serial</th>
-                        <th style="width: 32%;">Patient Name</th>
+                        <th style="width: 12%;">Patient ID</th>
+                        <th style="width: 20%;">Patient Name</th>
                         <th style="width: 15%;">Category</th>
                         <th style="width: 15%;">Status</th>
                         <th style="width: 28%; text-align: right;">Action Toolbar</th>
@@ -393,9 +400,17 @@
                         <?php foreach ($queue as $item): ?>
                             <tr class="<?= $item['status'] === 'called' ? 'row-running' : '' ?>">
                                 <td class="font-mono font-bold" style="font-size: 16px;">#<?= sprintf("%02d", $item['serial_number']) ?></td>
+                                <td class="font-mono" style="font-size: 12px; color: var(--primary);">
+                                    <?= !empty($item['patient_uid']) ? esc($item['patient_uid']) : '—' ?>
+                                </td>
                                 <td>
                                     <div class="flex flex-col">
-                                        <span class="font-bold" style="font-size: 14px; color: var(--text-primary);"><?= esc($item['patient_name']) ?></span>
+                                        <div class="flex align-center gap-2">
+                                            <span class="font-bold" style="font-size: 14px; color: var(--text-primary);"><?= esc($item['patient_name']) ?></span>
+                                            <?php if (!empty($item['patient_uid'])): ?>
+                                                <span class="badge badge-accent font-mono" style="font-size: 10px; padding: 2px 6px;"><?= esc($item['patient_uid']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
                                         <span style="font-size: 11px; color: var(--text-muted);">Phone: <?= esc($item['patient_phone']) ?> • Age: <?= esc($item['patient_age']) ?>y</span>
                                     </div>
                                 </td>
@@ -415,16 +430,20 @@
                                         <?php elseif ($item['status'] === 'hold'): ?>
                                             <span class="badge badge-warning">On Hold</span>
                                         <?php elseif ($item['status'] === 'missed'): ?>
-                                            <span class="badge badge-danger">Missed</span>
+                                            <span class="badge badge-danger" style="background: #ffe4e6; color: #e11d48; font-weight: 700; border: 1px solid #fecdd3;">Absent</span>
                                         <?php elseif ($item['status'] === 'completed'): ?>
                                             <span class="badge badge-success">Completed</span>
                                         <?php else: ?>
-                                            <span class="badge badge-primary" style="background: var(--bg-primary); color: var(--text-secondary);">Waiting</span>
+                                            <span class="badge badge-success" style="background: #dcfce7; color: #15803d; font-weight: 700; border: 1px solid #bbf7d0;">Present</span>
                                         <?php endif; ?>
 
-                                        <!-- Payment Status Toggle Button -->
+                                        <!-- Payment Status Toggle Button (High UI/UX Pill) -->
                                         <button type="button" class="btn-pay-toggle <?= ($item['payment_status'] ?? 'unpaid') === 'paid' ? 'is-paid' : 'is-unpaid' ?>" onclick="togglePaymentStatus(<?= $item['id'] ?>, '<?= $item['payment_status'] ?? 'unpaid' ?>', this)">
-                                            <?= ($item['payment_status'] ?? 'unpaid') === 'paid' ? '💳 Paid' : '❌ Unpaid' ?>
+                                            <?php if (($item['payment_status'] ?? 'unpaid') === 'paid'): ?>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Paid
+                                            <?php else: ?>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Unpaid
+                                            <?php endif; ?>
                                         </button>
                                     </div>
                                 </td>
@@ -433,16 +452,16 @@
                                         <?php if ($item['status'] === 'waiting'): ?>
                                             <button class="row-action-btn btn-call" onclick="callPatient(<?= $item['id'] ?>)">🔊 Call</button>
                                             <button class="row-action-btn btn-hold" onclick="holdPatient(<?= $item['id'] ?>)">⏸️ Hold</button>
-                                            <button class="row-action-btn btn-miss" onclick="missPatient(<?= $item['id'] ?>)">❌ Miss</button>
+                                            <button class="row-action-btn btn-miss" onclick="missPatient(<?= $item['id'] ?>)">❌ Absent</button>
                                         <?php elseif ($item['status'] === 'called'): ?>
                                             <button class="row-action-btn btn-call" onclick="callPatient(<?= $item['id'] ?>)">🔊 Recall</button>
                                             <button class="row-action-btn btn-complete" onclick="completePatient(<?= $item['id'] ?>)">✅ Complete</button>
                                         <?php elseif ($item['status'] === 'hold'): ?>
                                             <button class="row-action-btn btn-call" onclick="callPatient(<?= $item['id'] ?>)">🔊 Call</button>
                                             <button class="row-action-btn btn-complete" onclick="completePatient(<?= $item['id'] ?>)">✅ Complete</button>
-                                            <button class="row-action-btn btn-miss" onclick="missPatient(<?= $item['id'] ?>)">❌ Miss</button>
+                                            <button class="row-action-btn btn-miss" onclick="missPatient(<?= $item['id'] ?>)">❌ Absent</button>
                                         <?php elseif ($item['status'] === 'missed'): ?>
-                                            <button class="row-action-btn btn-rejoin" onclick="rejoinPatient(<?= $item['id'] ?>)">🔄 Rejoin (+3)</button>
+                                            <button class="row-action-btn btn-rejoin" onclick="rejoinPatient(<?= $item['id'] ?>)">✅ Present (+3)</button>
                                         <?php endif; ?>
 
                                         <!-- Health Vitals Modal Button -->
@@ -817,7 +836,7 @@
     }
 
     async function missPatient(id) {
-        await postAction('<?= url('reception/queue/miss') ?>', `id=${id}&_token=${getToken()}`, 'Patient marked as missed.');
+        await postAction('<?= url('reception/queue/miss') ?>', `id=${id}&_token=${getToken()}`, 'Patient marked as absent.');
     }
 
     function holdPatient(id) {
@@ -836,17 +855,16 @@
     async function rejoinPatient(id) {
         if (typeof Confirm !== 'undefined' && Confirm.show) {
             Confirm.show({
-                title: 'Rejoin Missed Patient',
-                message: 'Place this patient back in queue? They will rejoin after 3 patients.',
-                confirmText: 'Rejoin Now',
+                title: 'Mark Patient Present',
+                message: 'Place this absent patient back in queue? They will rejoin after 3 patients.',
+                confirmText: 'Present Now',
                 onConfirm: async () => {
-                    await postAction('<?= url('reception/queue/rejoin') ?>', `id=${id}&rejoin_after=3&_token=${getToken()}`, 'Patient rejoined queue.');
+                    await postAction('<?= url('reception/queue/rejoin') ?>', `id=${id}&rejoin_after=3&_token=${getToken()}`, 'Patient marked as present and rejoined queue.');
                 }
             });
         } else {
-            // Fallback if Confirm dialog not available
-            if (confirm('Place this patient back in queue after 3 patients?')) {
-                await postAction('<?= url('reception/queue/rejoin') ?>', `id=${id}&rejoin_after=3&_token=${getToken()}`, 'Patient rejoined queue.');
+            if (confirm('Mark this absent patient as present and place back in queue?')) {
+                await postAction('<?= url('reception/queue/rejoin') ?>', `id=${id}&rejoin_after=3&_token=${getToken()}`, 'Patient marked as present and rejoined queue.');
             }
         }
     }
@@ -942,11 +960,11 @@
                 Toast.success(data.message);
                 if (nextStatus === 'paid') {
                     btnElement.className = 'btn-pay-toggle is-paid';
-                    btnElement.innerHTML = '💳 Paid';
+                    btnElement.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Paid';
                     btnElement.setAttribute('onclick', `togglePaymentStatus(${serialId}, 'paid', this)`);
                 } else {
                     btnElement.className = 'btn-pay-toggle is-unpaid';
-                    btnElement.innerHTML = '❌ Unpaid';
+                    btnElement.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Unpaid';
                     btnElement.setAttribute('onclick', `togglePaymentStatus(${serialId}, 'unpaid', this)`);
                 }
             } else {

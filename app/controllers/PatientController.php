@@ -38,12 +38,18 @@ class PatientController extends BaseController {
         }
 
         $patientModel = new Patient();
-        
-        // Check if patient with phone already exists
-        $existing = $patientModel->findBy('phone', $phone);
-        if ($existing) {
-            $this->json($existing);
+
+        $phoneAccountModel = new \App\Models\PhoneAccount();
+        $account = $phoneAccountModel->findByPhone($phone);
+
+        if (!$account) {
+            $plainPassword = $phoneAccountModel->generatePassword();
+            $accountId = $phoneAccountModel->createAccount($phone, $plainPassword);
+        } else {
+            $accountId = $account['id'];
         }
+
+        $patientUid = $patientModel->generatePatientUid($name);
 
         $patientId = $patientModel->create([
             'phone' => $phone,
@@ -51,7 +57,9 @@ class PatientController extends BaseController {
             'age' => $age,
             'gender' => $gender,
             'blood_group' => $blood,
-            'address' => $address
+            'address' => $address,
+            'phone_account_id' => $accountId,
+            'patient_uid' => $patientUid
         ]);
 
         $newPatient = $patientModel->find($patientId);

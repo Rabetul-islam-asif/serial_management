@@ -820,6 +820,21 @@
                     <label class="form-label" for="book-phone">Mobile Number</label>
                     <input type="tel" name="phone" id="book-phone" class="form-input" value="<?= esc(session('role') === 'patient' ? session('user_id') : '') ?>" readonly required>
                 </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="form-group m-0">
+                        <label class="form-label" for="book-age">Age (Optional)</label>
+                        <input type="number" name="age" id="book-age" placeholder="Age" min="0" max="120" class="form-input">
+                    </div>
+                    <div class="form-group m-0">
+                        <label class="form-label" for="book-gender">Gender (Optional)</label>
+                        <select name="gender" id="book-gender" class="form-input">
+                            <option value="other">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-group m-0">
                     <label class="form-label" for="book-name">Patient Name</label>
                     <input type="text" name="name" id="book-name" class="form-input" placeholder="Enter Full Name" required>

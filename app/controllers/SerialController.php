@@ -161,26 +161,46 @@ class SerialController extends BaseController {
 
         $db->beginTransaction();
         try {
-            // 2. Find or create patient record
-            $patientStmt = $db->prepare("SELECT id FROM patients WHERE phone = :phone AND deleted_at IS NULL");
-            $patientStmt->execute(['phone' => $phone]);
-            $patientId = $patientStmt->fetchColumn();
+            // 2. Find or create phone account and NEW patient record
+            $phoneAccountModel = new \App\Models\PhoneAccount();
+            $account = $phoneAccountModel->findByPhone($phone);
+            $isNewAccount = false;
 
-            if (!$patientId) {
-                // Register new patient card
-                $insPatient = $db->prepare("INSERT INTO patients (name, phone, age, gender, created_at, updated_at) VALUES (:name, :phone, 30, 'other', NOW(), NOW())");
-                $insPatient->execute(['name' => $name, 'phone' => $phone]);
-                $patientId = $db->lastInsertId();
+            if (!$account) {
+                $plainPassword = $phoneAccountModel->generatePassword();
+                $accountId = $phoneAccountModel->createAccount($phone, $plainPassword);
+                $isNewAccount = true;
+            } else {
+                $accountId = $account['id'];
             }
+
+            $patientModel = new \App\Models\Patient();
+            $patientUid = $patientModel->generatePatientUid($name);
+
+            $now = date('Y-m-d H:i:s');
+            $insPatient = $db->prepare("INSERT INTO patients (name, phone, phone_account_id, patient_uid, age, gender, created_at, updated_at) VALUES (:name, :phone, :account_id, :uid, :age, :gender, :now, :now2)");
+            $insPatient->execute([
+                'name' => $name,
+                'phone' => $phone,
+                'account_id' => $accountId,
+                'uid' => $patientUid,
+                'age' => intval($_POST['age'] ?? 30),
+                'gender' => $_POST['gender'] ?? 'other',
+                'now' => $now,
+                'now2' => $now
+            ]);
+            $patientId = $db->lastInsertId();
 
             // 3. Create Appointment
             $sqlApp = "INSERT INTO appointments (patient_id, chamber_id, appointment_date, appointment_type, status, booked_by, created_at, updated_at) 
-                       VALUES (:patient_id, :chamber_id, :date, 'normal', 'booked', 0, NOW(), NOW())";
+                       VALUES (:patient_id, :chamber_id, :date, 'normal', 'booked', 0, :now, :now2)";
             $stmtApp = $db->prepare($sqlApp);
             $stmtApp->execute([
                 'patient_id' => $patientId,
                 'chamber_id' => $chamberId,
-                'date' => $date
+                'date' => $date,
+                'now' => $now,
+                'now2' => $now
             ]);
             $appointmentId = $db->lastInsertId();
 
@@ -212,7 +232,22 @@ class SerialController extends BaseController {
             $engine = new QueueEngine();
             $engine->reorderQueue($chamberId, $date);
 
-            $this->redirectWithSuccess('/', "Appointment confirmed! Your Token is: {$tokenNumber} (Queue Serial: #{$nextSerial}). Please arrive on time.");
+            // Simulate SMS with credentials
+            $logDir = dirname(__DIR__, 2) . '/storage/logs';
+            if (!is_dir($logDir)) mkdir($logDir, 0755, true);
+
+            $smsMsg = "[" . date('Y-m-d H:i:s') . "] Appointment Confirmed!\n";
+            $smsMsg .= "  Phone: {$phone}\n";
+            $smsMsg .= "  Patient ID: {$patientUid}\n";
+            $smsMsg .= "  Token: {$tokenNumber}\n";
+            if ($isNewAccount) {
+                $smsMsg .= "  Login Password: {$plainPassword}\n";
+                $smsMsg .= "  Login at: " . url('patient/login') . "\n";
+            }
+            $smsMsg .= "\n";
+            file_put_contents($logDir . '/sms_sandbox.log', $smsMsg, FILE_APPEND);
+
+            $this->redirectWithSuccess('/', "Appointment confirmed! Patient ID: {$patientUid}. Your Token is: {$tokenNumber} (Queue Serial: #{$nextSerial}). Please arrive on time.");
 
         } catch (Exception $e) {
             $db->rollBack();
@@ -678,9 +713,19 @@ class SerialController extends BaseController {
         }
 
         $serialModel = new Serial();
+        $serial = $serialModel->find($serialId);
+        if (!$serial) {
+            $this->json(['error' => 'Serial not found'], 404);
+            return;
+        }
+
         $db = $serialModel->getDb();
-        $stmt = $db->prepare("UPDATE serials SET patient_type = :type, updated_at = NOW() WHERE id = :id");
+        $stmt = $db->prepare("UPDATE serials SET patient_type = :type, updated_at = datetime('now') WHERE id = :id");
         $stmt->execute(['type' => $type, 'id' => $serialId]);
+
+        // Trigger queue reorder immediately (e.g. emergency patient jumps to top)
+        $engine = new QueueEngine();
+        $engine->reorderQueue($serial['chamber_id'], $serial['serial_date']);
 
         $this->json(['success' => true, 'message' => 'Patient visit type updated to ' . ucfirst($type), 'patient_type' => $type]);
     }

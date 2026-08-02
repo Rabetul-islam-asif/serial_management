@@ -6,3 +6,6 @@ public/uploads/prescriptions/*
 .vscode/
 .idea/
 *.local
+database/sqlite.db
+*.db
+*.sqlite

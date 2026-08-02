@@ -30,11 +30,29 @@ abstract class BaseModel {
                 }
             }
             
+            $driver = $config['driver'] ?? env('DB_DRIVER', 'mysql');
+            $sqliteDbFile = dirname(__DIR__, 2) . '/database/sqlite.db';
+
+            if ($driver === 'sqlite' || env('DB_DRIVER') === 'sqlite') {
+                self::$db = new PDO("sqlite:" . $sqliteDbFile, null, null, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                ]);
+                return;
+            }
+            
             $dsn = "mysql:host={$host};port={$port};dbname={$config['database']};charset={$config['charset']}";
             
             try {
                 self::$db = new PDO($dsn, $config['username'], $config['password'], $config['options']);
             } catch (Exception $e) {
+                if (file_exists($sqliteDbFile)) {
+                    self::$db = new PDO("sqlite:" . $sqliteDbFile, null, null, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    ]);
+                    return;
+                }
                 if (config('app.env') === 'production' || env('RENDER') || env('VERCEL')) {
                     http_response_code(500);
                     echo "<div style='font-family: system-ui, sans-serif; max-width: 600px; margin: 50px auto; padding: 24px; border: 1px solid #f87171; background: #fef2f2; border-radius: 12px; color: #991b1b;'>";

@@ -7,7 +7,7 @@ class Serial extends BaseModel {
     protected array $fillable = [
         'appointment_id', 'chamber_id', 'serial_date', 'serial_number', 'queue_position',
         'patient_type', 'priority_level', 'status', 'called_at', 'started_at', 'completed_at',
-        'hold_reason', 'missed_rejoin_after', 'original_position', 'is_rejoined', 'token_number', 'notes'
+        'hold_reason', 'missed_rejoin_after', 'original_position', 'is_rejoined', 'is_rollover', 'token_number', 'notes'
     ];
 
     /**
@@ -19,8 +19,12 @@ class Serial extends BaseModel {
             $res = $this->query($checkSql, ['chamber_id' => $chamberId, 'date' => $date]);
             if (($res[0]['cnt'] ?? 0) == 0) {
                 // Auto-rollover active uncompleted serials from previous dates to today
-                $rollSql = "UPDATE {$this->table} SET serial_date = :date WHERE chamber_id = :chamber_id AND status NOT IN ('completed', 'cancelled')";
+                $rollSql = "UPDATE {$this->table} SET serial_date = :date, is_rollover = 1 WHERE chamber_id = :chamber_id AND status NOT IN ('completed', 'cancelled')";
                 $this->execute($rollSql, ['chamber_id' => $chamberId, 'date' => $date]);
+
+                // Reorder queue to re-index serial numbers and position rollover patients at top priority
+                $engine = new QueueEngine();
+                $engine->reorderQueue($chamberId, $date);
             }
         }
     }

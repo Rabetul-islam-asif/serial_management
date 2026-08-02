@@ -25,6 +25,9 @@
 </style>
 
 <div class="container py-8">
+    <?php if (!empty($showBackLink)): ?>
+        <a href="<?= url('patient/dashboard') ?>" style="display:inline-block; margin-bottom: 16px; font-size:13px; color: var(--primary); text-decoration: none; font-weight: 600;">&larr; Back to Family Members</a>
+    <?php endif; ?>
     <div class="grid grid-cols-12 gap-6">
         <!-- Left 8 Columns: Patient Profile and Medical History Timeline -->
         <div style="grid-column: span 8;" class="flex flex-col gap-6 animate-slide-up">
@@ -36,7 +39,10 @@
                     </div>
                     <div>
                         <h2 style="font-size: 18px; font-weight: 700;"><?= esc($patient['name']) ?></h2>
-                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Phone: +880<?= esc(substr($patient['phone'], -10)) ?> • Age: <?= esc($patient['age']) ?> Years</p>
+                        <?php if (!empty($patient['patient_uid'])): ?>
+                            <div style="margin-top: 4px;"><span class="badge badge-accent font-mono"><?= esc($patient['patient_uid']) ?></span></div>
+                        <?php endif; ?>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Phone: +880<?= esc(substr($patient['phone'], -10)) ?> • Age: <?= esc($patient['age']) ?> Years</p>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\User;
-use App\Models\OtpCode;
 use App\Models\Patient;
 
 class AuthController extends BaseController {
@@ -77,14 +76,8 @@ class AuthController extends BaseController {
      * Show Patient Phone Entry Form
      */
     public function showPatientLogin(): void {
-        if (session('user_id')) {
-            // Clear existing session so patient enters/verifies phone number
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
-            $_SESSION = [];
-            session_destroy();
-            session_start();
+        if (session('user_id') && session('role') === 'patient') {
+            $this->redirect('patient/dashboard');
         }
         if (isset($_GET['redirect'])) {
             if (session_status() === PHP_SESSION_NONE) {
@@ -96,101 +89,72 @@ class AuthController extends BaseController {
     }
 
     /**
-     * Send OTP Code
+     * Handle Patient Phone + Password Login
      */
-    public function sendOtp(): void {
+    public function patientLogin(): void {
         $phone = trim($_POST['phone'] ?? '');
+        $password = $_POST['password'] ?? '';
 
-        // Validation for BD phone numbers format or simple numeric length
-        if (empty($phone) || !preg_match('/^[0-9]{11,15}$/', $phone)) {
+        if (empty($phone) || empty($password)) {
+            $this->redirectWithError('patient/login', 'Please fill in all fields.');
+        }
+
+        if (!preg_match('/^[0-9]{11,15}$/', $phone)) {
             $this->redirectWithError('patient/login', 'Please enter a valid phone number.');
         }
 
-        $otpModel = new OtpCode();
-        $code = $otpModel->generate($phone);
+        $accountModel = new \App\Models\PhoneAccount();
+        $account = $accountModel->authenticate($phone, $password);
 
-        // Simulate SMS sending (log to file for local dev environment)
-        $logDir = dirname(__DIR__, 2) . '/storage/logs';
-        if (!is_dir($logDir)) {
-            mkdir($logDir, 0755, true);
-        }
-        
-        $logMessage = "[" . date('Y-m-d H:i:s') . "] Sent OTP: {$code} to Phone: {$phone}\n";
-        file_put_contents($logDir . '/sms_sandbox.log', $logMessage, FILE_APPEND);
-
-        // Store phone number in session for verification phase
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $_SESSION['otp_phone'] = $phone;
-
-        $this->redirectWithSuccess('patient/otp/verify', 'OTP code sent successfully (logged to storage/logs/sms_sandbox.log).');
-    }
-
-    /**
-     * Show OTP Code Verification Page
-     */
-    public function showVerifyOtp(): void {
-        $phone = session('otp_phone');
-        if (!$phone) {
-            $this->redirect('patient/login');
-        }
-        $this->view('auth/verify-otp', ['phone' => $phone], 'auth');
-    }
-
-    /**
-     * Verify OTP Code
-     */
-    public function verifyOtp(): void {
-        $phone = session('otp_phone');
-        $code = trim($_POST['code'] ?? '');
-
-        if (!$phone) {
-            $this->redirect('patient/login');
-        }
-
-        if (empty($code) || strlen($code) !== 6) {
-            $this->redirectWithError('patient/otp/verify', 'Please enter a valid 6-digit code.');
-        }
-
-        $otpModel = new OtpCode();
-        if ($otpModel->verify($phone, $code)) {
-            // Find or create patient record for this number
-            $patientModel = new Patient();
-            $patient = $patientModel->findBy('phone', $phone);
-            $patientName = 'Patient (' . substr($phone, -4) . ')';
-            
-            if (!$patient) {
-                $patientModel->create([
-                    'phone' => $phone,
-                    'name' => $patientName,
-                    'age' => 30,
-                    'gender' => 'other'
-                ]);
-            } else {
-                $patientName = $patient['name'];
-            }
-
+        if ($account) {
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
-            
-            // Log in as patient
-            $_SESSION['user_id'] = $phone; // use phone as identifier
-            $_SESSION['name'] = $patientName;
+            $_SESSION['user_id'] = $account['id'];
+            $_SESSION['phone'] = $phone;
+            $_SESSION['name'] = 'Patient (' . substr($phone, -4) . ')';
             $_SESSION['role'] = 'patient';
-            unset($_SESSION['otp_phone']);
 
-            $redirect = $_SESSION['login_redirect'] ?? 'dashboard';
+            $redirect = $_SESSION['login_redirect'] ?? 'patient/dashboard';
             unset($_SESSION['login_redirect']);
 
-            if ($redirect === 'book') {
-                $this->redirectWithSuccess('?redirect=book', 'Successfully logged in. You can now book your slot.');
-            } else {
-                $this->redirectWithSuccess('dashboard', 'Successfully logged in to Patient Portal.');
-            }
+            $this->redirectWithSuccess($redirect, 'Welcome to Patient Portal!');
         }
 
-        $this->redirectWithError('patient/otp/verify', 'Invalid or expired OTP code.');
+        $this->redirectWithError('patient/login', 'Invalid phone number or password.');
+    }
+
+    /**
+     * Show Forgot Password Form
+     */
+    public function showForgotPassword(): void {
+        $this->view('auth/forgot-password', [], 'auth');
+    }
+
+    /**
+     * Reset Password and SMS new one
+     */
+    public function resetPassword(): void {
+        $phone = trim($_POST['phone'] ?? '');
+        if (empty($phone) || !preg_match('/^[0-9]{11,15}$/', $phone)) {
+            $this->redirectWithError('patient/forgot-password', 'Please enter a valid phone number.');
+        }
+
+        $accountModel = new \App\Models\PhoneAccount();
+        $account = $accountModel->findByPhone($phone);
+
+        if (!$account) {
+            $this->redirectWithError('patient/forgot-password', 'No account found with this phone number. Please book an appointment first.');
+        }
+
+        $newPassword = $accountModel->resetPassword($account['id']);
+
+        // Simulate SMS
+        $logDir = dirname(__DIR__, 2) . '/storage/logs';
+        if (!is_dir($logDir)) mkdir($logDir, 0755, true);
+        $logMessage = "[" . date('Y-m-d H:i:s') . "] Password Reset — Phone: {$phone}, New Password: {$newPassword}\n";
+        file_put_contents($logDir . '/sms_sandbox.log', $logMessage, FILE_APPEND);
+
+        $this->redirectWithSuccess('patient/login', 'New password sent to your phone number. (Check storage/logs/sms_sandbox.log)');
     }
 }

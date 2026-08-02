@@ -124,6 +124,7 @@
     </main>
 
     <!-- Footer -->
+    <?php if (empty($hideFooter)): ?>
     <footer class="site-footer">
         <div class="container">
             <div class="grid grid-cols-3" style="gap: 40px;">
@@ -161,6 +162,7 @@
             </div>
         </div>
     </footer>
+    <?php endif; ?>
 
     <!-- JS Core Script Libraries -->
     <script src="<?= asset('js/components/toast.js') ?>"></script>
